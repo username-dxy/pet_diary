@@ -85,21 +85,15 @@ class CalendarViewModel extends ChangeNotifier {
     return false;
   }
 
-/// 打开系统设置
-Future<void> openSystemSettings() async {
-  await openAppSettings(); // 这里调用的是permission_handler包的全局函数
-}
+  /// 打开系统设置
+  Future<void> openSystemSettings() async {
+    await openAppSettings(); // 这里调用的是permission_handler包的全局函数
+  }
 
-  /// 选择照片（带权限检查）
+  //// 选择照片
   Future<void> pickImage() async {
-    // 1. 检查权限
-    final hasPermission = await _checkPhotoPermission();
-    if (!hasPermission) {
-      debugPrint('照片权限被拒绝');
-      return;
-    }
-
-    // 2. 选择照片
+    _permissionError = null;
+    
     try {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(
@@ -111,17 +105,26 @@ Future<void> openSystemSettings() async {
 
       if (image != null) {
         _selectedImage = File(image.path);
-        _resetProcessState();
+        
+        // ⚠️ 关键：不要调用 _resetProcessState()
+        // 只重置处理相关的状态，保留 _selectedImage
+        _progress = 0.0;
+        _currentStep = '';
+        _recognizedEmotion = null;
+        _extractedFeatures = null;
+        _generatedStickerPath = null;
+        _isProcessing = false;
+        
         notifyListeners();
         
-        debugPrint('照片选择成功: ${image.path}');
+        debugPrint('✅ 照片已赋值: _selectedImage = ${_selectedImage?.path}');
       } else {
-        debugPrint('用户取消了照片选择');
+        debugPrint('ℹ️ 用户取消了照片选择');
       }
-    } catch (e) {
-      _permissionError = '选择照片失败：$e';
+    } on Exception catch (e) {
+      _permissionError = '选择照片失败，请确保已授予相册权限';
       notifyListeners();
-      debugPrint('选择照片出错: $e');
+      debugPrint('❌ 选择照片出错: $e');
     }
   }
 

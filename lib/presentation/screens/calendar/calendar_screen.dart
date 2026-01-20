@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pet_diary/presentation/screens/calendar/calendar_viewmodel.dart';
 import 'package:pet_diary/presentation/screens/calendar/widgets/month_grid_widget.dart';
 import 'package:pet_diary/presentation/screens/calendar/widgets/processing_dialog.dart';
@@ -128,25 +129,34 @@ class _CalendarScreenContent extends StatelessWidget {
   }
 
   Future<void> _handleAddEmotion(BuildContext context, CalendarViewModel viewModel) async {
-  // 1. 选择照片（内部会检查权限）
-  await viewModel.pickImage();
+    debugPrint('🎯 开始添加情绪');
+    
+    // 1. 选择照片
+    await viewModel.pickImage();
 
-  // 2. 检查权限错误
-  if (viewModel.permissionError != null) {
-    if (context.mounted) {
-      _showPermissionDialog(context, viewModel);
+    // 2. 直接从 viewModel 检查（不依赖 context.watch）
+    if (viewModel.selectedImage == null) {
+      debugPrint('❌ 照片未选择');
+      
+      if (viewModel.permissionError != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.permissionError!),
+            action: SnackBarAction(
+              label: '去设置',
+              onPressed: () => openAppSettings(),
+            ),
+          ),
+        );
+      }
+      return;
     }
-    return;
-  }
 
-  // 3. 检查是否选择了照片
-  if (viewModel.selectedImage == null) {
-    debugPrint('未选择照片');
-    return;
-  }
+    debugPrint('✅ 照片已选择: ${viewModel.selectedImage!.path}');
 
-  // 4. 显示处理对话框
-  if (context.mounted) {
+    // 3. 显示处理对话框
+    if (!context.mounted) return;
+    
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -155,42 +165,42 @@ class _CalendarScreenContent extends StatelessWidget {
         child: const ProcessingDialog(),
       ),
     );
+
+    // 4. 开始处理
+    debugPrint('🔄 开始处理照片');
+    await viewModel.processImageSimple();
   }
 
-  // 5. 开始处理（使用兜底流程）
-  await viewModel.processImageSimple(); // ← 使用兜底流程
-}
-
-/// 显示权限错误对话框
-void _showPermissionDialog(BuildContext context, CalendarViewModel viewModel) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('需要相册权限'),
-      content: Text(viewModel.permissionError ?? '无法访问相册'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
-        ),
-        if (viewModel.permissionError?.contains('永久拒绝') == true)
+  /// 显示权限错误对话框
+  void _showPermissionDialog(BuildContext context, CalendarViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('需要相册权限'),
+        content: Text(viewModel.permissionError ?? '无法访问相册'),
+        actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              viewModel.openSystemSettings(); // 打开系统设置
-            },
-            child: const Text('去设置'),
-          )
-        else
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _handleAddEmotion(context, viewModel); // 重新尝试
-            },
-            child: const Text('重试'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
           ),
-        ],
-      ),
-    );
-  }
+          if (viewModel.permissionError?.contains('永久拒绝') == true)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                viewModel.openSystemSettings(); // 打开系统设置
+              },
+              child: const Text('去设置'),
+            )
+          else
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _handleAddEmotion(context, viewModel); // 重新尝试
+              },
+              child: const Text('重试'),
+            ),
+          ],
+        ),
+      );
+    }
 }
