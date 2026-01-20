@@ -20,6 +20,9 @@ class MonthGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 计算这个月的总格子数（包括前面的空白）
+    final totalCells = _getFirstDayOffset() + _getDaysInMonth();
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -28,17 +31,41 @@ class MonthGridWidget extends StatelessWidget {
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
       ),
-      itemCount: _getDaysInMonth(),
+      itemCount: totalCells,
       itemBuilder: (context, index) {
-        final day = index + 1;
-        final date = DateTime(year, month, day);
+        // 计算这个格子对应的日期
+        final dayNumber = index - _getFirstDayOffset() + 1;
+
+        // 如果是空白格子（1号之前）
+        if (dayNumber < 1) {
+          return _buildEmptyCell();
+        }
+
+        // 如果超出了这个月的天数
+        if (dayNumber > _getDaysInMonth()) {
+          return _buildEmptyCell();
+        }
+
+        // 正常的日期格子
+        final date = DateTime(year, month, dayNumber);
         final record = records[date];
 
-        return _buildDayCell(date, day, record);
+        return _buildDayCell(date, dayNumber, record);
       },
     );
   }
 
+  /// 空白格子
+  Widget _buildEmptyCell() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+
+  /// 日期格子
   Widget _buildDayCell(DateTime date, int day, EmotionRecord? record) {
     final isToday = _isToday(date);
 
@@ -108,8 +135,18 @@ class MonthGridWidget extends StatelessWidget {
     );
   }
 
+  /// 获取这个月1号是星期几的偏移量
+  /// 返回值：0-6（周日=0, 周一=1, ..., 周六=6）
+  int _getFirstDayOffset() {
+    final firstDay = DateTime(year, month, 1);
+    // weekday: 周一=1, 周二=2, ..., 周日=7
+    // 我们需要：周日=0, 周一=1, ..., 周六=6
+    return firstDay.weekday % 7;
+  }
+
   /// 获取当月天数
   int _getDaysInMonth() {
+    // 下个月的第0天 = 这个月的最后一天
     return DateTime(year, month + 1, 0).day;
   }
 
