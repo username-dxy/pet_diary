@@ -1,16 +1,112 @@
-import 'dart:io';  // ← 必须有！用于 File 类
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pet_diary/presentation/screens/diary/diary_viewmodel.dart';
 import 'package:pet_diary/presentation/screens/diary/widgets/diary_page_widget.dart';
 import 'package:pet_diary/presentation/screens/diary/widgets/diary_empty_state_widget.dart';
-import 'package:pet_diary/data/models/app_photo.dart';  // ← 必须有！用于 AppPhoto 类
+import 'package:pet_diary/presentation/screens/diary/widgets/diary_password_dialog.dart';
+import 'package:pet_diary/data/models/app_photo.dart';
+import 'package:pet_diary/domain/services/diary_password_service.dart';
+import 'package:pet_diary/presentation/screens/diary/widgets/photo_info_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DiaryScreen extends StatelessWidget {
+class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
 
   @override
+  State<DiaryScreen> createState() => _DiaryScreenState();
+}
+
+class _DiaryScreenState extends State<DiaryScreen> {
+  final DiaryPasswordService _passwordService = DiaryPasswordService();
+  bool _isVerified = false;
+  bool _isCheckingPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPasswordVerification();
+  }
+
+  /// 检查密码验证
+  Future<void> _checkPasswordVerification() async {
+    final needsPassword = await _passwordService.needsPasswordVerification();
+    
+    if (!needsPassword) {
+      // 无需密码，直接进入
+      await _passwordService.markEntered();
+      setState(() {
+        _isVerified = true;
+        _isCheckingPassword = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isCheckingPassword = false;
+    });
+
+    // 需要密码验证，延迟一下显示对话框
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    if (!mounted) return;
+
+    // 显示密码对话框
+    final verified = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const DiaryPasswordDialog(),
+    );
+
+    if (verified == true) {
+      await _passwordService.markEntered();
+      setState(() {
+        _isVerified = true;
+      });
+    } else {
+      // 用户取消，返回上一页
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isCheckingPassword) {
+      // 检查密码中
+      return Scaffold(
+        backgroundColor: const Color(0xFFF5E6D3),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '打开日记本中...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (!_isVerified) {
+      // 密码未验证，显示空白页
+      return Scaffold(
+        backgroundColor: const Color(0xFFF5E6D3),
+        body: const Center(),
+      );
+    }
+
+    // 密码验证通过，显示日记内容
     return ChangeNotifierProvider(
       create: (_) => DiaryViewModel()..init(),
       child: const _DiaryScreenContent(),
@@ -66,6 +162,42 @@ class _DiaryScreenContent extends StatelessWidget {
               ],
             ),
             onPressed: () => _showAlbumManagement(context, viewModel),
+          ),
+          // 调试菜单
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              switch (value) {
+                case 'check_exif':
+                  _showExifCheckDialog(context, viewModel);
+                  break;
+                case 'clear_diary':
+                  _confirmClearAllDiaries(context, viewModel);
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'check_exif',
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 20),
+                    SizedBox(width: 8),
+                    Text('检查EXIF信息'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'clear_diary',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline, size: 20),
+                    SizedBox(width: 8),
+                    Text('清空所有日记'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -203,6 +335,110 @@ class _DiaryScreenContent extends StatelessWidget {
       ),
     );
   }
+  /// 显示EXIF检查对话框
+  void _showExifCheckDialog(BuildContext context, DiaryViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('📸 EXIF信息检查'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('相册照片总数: ${viewModel.albumPhotoCount}'),
+              const SizedBox(height: 16),
+              ...viewModel.albumPhotos.map((photo) {
+                final hasExif = photo.photoTakenAt != null;
+                final hasLocation = photo.location != null;
+                
+                return Card(
+                  child: ListTile(
+                    leading: Icon(
+                      hasExif ? Icons.check_circle : Icons.cancel,
+                      color: hasExif ? Colors.green : Colors.red,
+                    ),
+                    title: Text('照片 ${photo.id.substring(0, 8)}...'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('拍摄时间: ${photo.photoTakenAt ?? "❌ 未读取"}'),
+                        Text('地理位置: ${photo.location ?? "❌ 未读取"}'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (context) => PhotoInfoDialog(photo: photo),
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+              
+              const SizedBox(height: 16),
+              
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  '💡 点击照片可查看详细信息\n'
+                  '如果没有EXIF信息，建议：\n'
+                  '• 使用相机原图\n'
+                  '• 避免使用截图或编辑过的图片',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('关闭'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 确认清空所有日记
+  void _confirmClearAllDiaries(BuildContext context, DiaryViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('⚠️ 清空日记'),
+        content: const Text('确定要删除所有日记吗？此操作不可撤销！'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // 清空日记
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('diary_entries');
+              await viewModel.loadData();
+              
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('所有日记已清空')),
+                );
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('确定删除'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// 相册管理底部表单
@@ -301,7 +537,7 @@ class _AlbumManagementSheet extends StatelessWidget {
                         itemCount: viewModel.albumPhotos.length,
                         itemBuilder: (context, index) {
                           final photo = viewModel.albumPhotos[index];
-                          return _buildPhotoItem(photo, viewModel);
+                          return _buildPhotoItem(context, photo, viewModel);
                         },
                       ),
               ),
@@ -312,60 +548,103 @@ class _AlbumManagementSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildPhotoItem(AppPhoto photo, DiaryViewModel viewModel) {
-    return Stack(
-      children: [
-        // 照片
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.file(
-            File(photo.localPath),
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        // 删除按钮
-        Positioned(
-          top: 4,
-          right: 4,
-          child: GestureDetector(
-            onTap: () => viewModel.deletePhotoFromAlbum(photo.id),
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 16,
-              ),
+  Widget _buildPhotoItem(BuildContext context, AppPhoto photo, DiaryViewModel viewModel) {
+    return GestureDetector(
+      onTap: () {
+        // 点击照片查看详细信息
+        showDialog(
+          context: context,
+          builder: (context) => PhotoInfoDialog(photo: photo),
+        );
+      },
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              File(photo.localPath),
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-
-        // EXIF信息指示器
-        if (photo.photoTakenAt != null || photo.location != null)
+          
+          // 删除按钮
           Positioned(
-            bottom: 4,
-            left: 4,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Icon(
-                Icons.info_outline,
-                color: Colors.white,
-                size: 12,
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: () => viewModel.deletePhotoFromAlbum(photo.id),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ),
             ),
           ),
-      ],
+          
+          // EXIF信息指示器
+          if (photo.photoTakenAt != null || photo.location != null)
+            Positioned(
+              bottom: 4,
+              left: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'EXIF',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Positioned(
+              bottom: 4,
+              left: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  '无EXIF',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
+
 }

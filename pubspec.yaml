@@ -17,6 +17,7 @@ dependencies:
   # 本地存储
   shared_preferences: ^2.2.2
   path_provider: ^2.1.1
+  path: ^1.8.3
   
   # 图片处理
   image_picker: ^1.0.5
@@ -43,6 +44,7 @@ flutter:
   
   # ★ 资源配置（稍后创建）
   assets:
+    - assets/animations/
     - assets/images/
     - assets/images/room/
     - assets/images/ui/

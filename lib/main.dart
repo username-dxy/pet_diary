@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pet_diary/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:pet_diary/presentation/screens/home/home_screen.dart';
 
 void main() {
@@ -17,7 +19,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      // 设置初始路由为Onboarding
+      initialRoute: '/onboarding',
+      routes: {
+        '/onboarding': (context) => const OnboardingScreen(),
+        '/home': (context) => const HomeScreen(),
+      }
     );
   }
 }
