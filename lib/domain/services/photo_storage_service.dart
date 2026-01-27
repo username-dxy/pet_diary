@@ -34,6 +34,33 @@ class PhotoStorageService {
     }
   }
 
+  /// 保存宠物头像照片
+  Future<String> saveProfilePhoto(File photoFile, String petId) async {
+    try {
+      final appDir = await getApplicationDocumentsDirectory();
+      final profilePhotosDir = Directory('${appDir.path}/profile_photos');
+
+      // 创建目录（如果不存在）
+      if (!await profilePhotosDir.exists()) {
+        await profilePhotosDir.create(recursive: true);
+      }
+
+      // 使用petId作为文件名
+      final extension = path.extension(photoFile.path);
+      final fileName = 'profile_$petId$extension';
+      final targetPath = '${profilePhotosDir.path}/$fileName';
+
+      // 复制文件
+      await photoFile.copy(targetPath);
+
+      debugPrint('✅ 头像照片已保存: $targetPath');
+      return targetPath;
+    } catch (e) {
+      debugPrint('❌ 保存头像照片失败: $e');
+      rethrow;
+    }
+  }
+
   /// 删除照片
   Future<void> deletePhoto(String photoPath) async {
     try {

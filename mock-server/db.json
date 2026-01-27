@@ -1,0 +1,54 @@
+{
+  "pets": [
+    {
+      "id": "test_pet_001",
+      "name": "测试小猫",
+      "species": "cat",
+      "breed": "橘猫",
+      "ownerNickname": "测试主人",
+      "birthday": "2020-05-01T00:00:00.000Z",
+      "gender": "male",
+      "personality": "playful",
+      "createdAt": "2024-01-26T10:00:00.000Z",
+      "updatedAt": "2026-01-26T12:42:22.573Z"
+    },
+    {
+      "id": "test_ui_1769491860492",
+      "name": "UI测试猫",
+      "species": "cat",
+      "breed": "测试品种",
+      "ownerNickname": "UI测试主人",
+      "birthday": "2020-05-01T00:00:00.000Z",
+      "gender": "male",
+      "personality": "playful",
+      "createdAt": "2026-01-27T05:31:00.524Z",
+      "updatedAt": "2026-01-27T05:31:00.524Z"
+    },
+    {
+      "id": "860e780d-af1b-47d1-b876-87efe63d3224",
+      "name": "up",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/394CAE1A-904C-4853-9D27-F4FBE4B8BEA1/Documents/diary_photos/diary_1769500638410.jpg",
+      "birthday": null,
+      "ownerNickname": "主人",
+      "gender": "unknown",
+      "personality": "playful",
+      "createdAt": "2026-01-27T07:57:18.557Z",
+      "updatedAt": "2026-01-27T07:57:18.558Z"
+    }
+  ],
+  "photos": [],
+  "diaries": [
+    {
+      "id": "test_diary_001",
+      "petId": "test_pet_001",
+      "date": "2024-01-26T00:00:00.000Z",
+      "content": "今天测试小猫很开心，在阳光下打滚。",
+      "isLocked": false,
+      "createdAt": "2024-01-26T10:00:00.000Z",
+      "syncedAt": "2026-01-26T12:42:22.637Z"
+    }
+  ],
+  "users": []
+}

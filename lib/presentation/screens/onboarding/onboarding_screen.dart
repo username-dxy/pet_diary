@@ -189,7 +189,7 @@ class OnboardingScreen extends StatelessWidget {
 
   /// 以游客身份进入
   void _enterAsGuest(BuildContext context) {
-    // 直接进入主页
-    Navigator.of(context).pushReplacementNamed('/home');
+    // 进入档案设置页面
+    Navigator.of(context).pushReplacementNamed('/profile-setup');
   }
 }

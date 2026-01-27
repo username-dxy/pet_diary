@@ -1,0 +1,34 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/00ffff/pet_diary"
+      ],
+      "description": "安全访问项目文件系统"
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "--repository",
+        "/Users/00ffff/pet_diary"
+      ],
+      "description": "Git 操作支持"
+    },
+    "flutter-tools": {
+      "command": "node",
+      "args": [
+        "/Users/00ffff/pet_diary/.claude/mcp-servers/flutter-tools.js"
+      ],
+      "env": {
+        "FLUTTER_PROJECT_ROOT": "/Users/00ffff/pet_diary"
+      },
+      "description": "Flutter 项目开发工具集（测试、分析、格式化、MVVM检查）"
+    }
+  }
+}
