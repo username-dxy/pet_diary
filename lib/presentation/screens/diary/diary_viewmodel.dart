@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pet_diary/data/models/diary_entry.dart';
 import 'package:pet_diary/data/models/pet.dart';
 import 'package:pet_diary/data/models/app_photo.dart';
+import 'package:pet_diary/data/models/scan_result.dart';
 import 'package:pet_diary/data/repositories/diary_repository.dart';
 import 'package:pet_diary/data/repositories/pet_repository.dart';
 import 'package:pet_diary/data/repositories/app_photo_repository.dart';
@@ -388,6 +389,97 @@ class DiaryViewModel extends ChangeNotifier {
       _errorMessage = '删除失败：$e';
       notifyListeners();
       debugPrint('❌ 删除日记错误: $e');
+    }
+  }
+
+  /// 处理后台扫描结果
+  /// 将扫描到的宠物照片保存到相册并生成日记
+  Future<int> processScanResults(List<ScanResult> results) async {
+    debugPrint('');
+    debugPrint('🤖 ========== 处理后台扫描结果 ==========');
+    debugPrint('📊 扫描结果数量: ${results.length}');
+
+    if (results.isEmpty) {
+      debugPrint('ℹ️ 无扫描结果需要处理');
+      return 0;
+    }
+
+    if (_currentPet == null) {
+      debugPrint('❌ 宠物信息不存在，无法生成日记');
+      return 0;
+    }
+
+    int processedCount = 0;
+
+    try {
+      for (final result in results) {
+        debugPrint('');
+        debugPrint('📸 处理照片: ${result.assetId}');
+        debugPrint('  类型: ${result.animalType}');
+        debugPrint('  置信度: ${result.confidence}');
+        debugPrint('  临时路径: ${result.tempFilePath}');
+
+        // 1. 检查临时文件是否存在
+        final tempFile = File(result.tempFilePath);
+        if (!await tempFile.exists()) {
+          debugPrint('  ⚠️ 临时文件不存在，跳过');
+          continue;
+        }
+
+        // 2. 复制到持久化目录
+        final persistentPath =
+            await _photoStorageService.savePhoto(result.tempFilePath);
+        debugPrint('  ✅ 已保存到: $persistentPath');
+
+        // 3. 创建AppPhoto对象
+        final photo = AppPhoto(
+          id: '${DateTime.now().millisecondsSinceEpoch}_${result.assetId.hashCode}',
+          petId: _currentPet!.id,
+          localPath: persistentPath,
+          addedAt: DateTime.now(),
+          photoTakenAt: result.creationDate,
+          latitude: result.latitude,
+          longitude: result.longitude,
+        );
+
+        // 4. 保存到相册
+        await _photoRepository.addPhotos([photo]);
+        debugPrint('  ✅ 已添加到相册');
+
+        // 5. 删除临时文件
+        try {
+          await tempFile.delete();
+          debugPrint('  ✅ 已删除临时文件');
+        } catch (e) {
+          debugPrint('  ⚠️ 删除临时文件失败: $e');
+        }
+
+        processedCount++;
+      }
+
+      // 6. 重新加载相册
+      _albumPhotos = await _photoRepository.getAllPhotos();
+      debugPrint('');
+      debugPrint('📚 相册照片总数: ${_albumPhotos.length}');
+
+      // 7. 检查并生成日记（如果今日无日记）
+      await checkAndGenerateDiaryAutomatically();
+
+      // 8. 重新加载日记列表
+      _entries = await _diaryRepository.getRecentEntries(limit: 30);
+      notifyListeners();
+
+      debugPrint('');
+      debugPrint('✅ 处理完成，共处理 $processedCount 张照片');
+      debugPrint('========================================');
+      debugPrint('');
+
+      return processedCount;
+    } catch (e) {
+      debugPrint('❌ 处理扫描结果错误: $e');
+      _errorMessage = '处理扫描结果失败：$e';
+      notifyListeners();
+      return processedCount;
     }
   }
 }

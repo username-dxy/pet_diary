@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-/// 名称输入 Section
+/// 名称输入 Section - Figma 木质风格
 class NameInputSection extends StatefulWidget {
   final String initialValue;
   final Function(String) onChanged;
+  final double iconSize;
 
   const NameInputSection({
     Key? key,
     required this.initialValue,
     required this.onChanged,
+    this.iconSize = 40,
   }) : super(key: key);
 
   @override
@@ -32,59 +34,67 @@ class _NameInputSectionState extends State<NameInputSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
-          '📝 宠物叫什么名字？',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Image.asset(
+          'assets/images/profile_setup/icon_tag.png',
+          width: widget.iconSize,
+          height: widget.iconSize,
         ),
-        const SizedBox(height: 8),
-        const Text(
-          '给Ta起个好听的名字吧',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '宠物叫什么名字？',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5C3D1A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              SizedBox(
+                height: 33,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.asset(
+                          'assets/images/profile_setup/input_field.jpg',
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: TextField(
+                        controller: _controller,
+                        onChanged: widget.onChanged,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF5C3D1A),
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: '输入宠物名称...',
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFAA8866),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _controller,
-          onChanged: widget.onChanged,
-          decoration: InputDecoration(
-            hintText: '例如：小橘、阿黄、咪咪...',
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFD2B48C),
-                width: 1.5,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFD2B48C),
-                width: 1.5,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF8B4513),
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-          style: const TextStyle(fontSize: 16),
         ),
       ],
     );

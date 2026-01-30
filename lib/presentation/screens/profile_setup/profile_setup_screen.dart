@@ -25,214 +25,188 @@ class ProfileSetupScreen extends StatelessWidget {
 class _ProfileSetupScreenContent extends StatelessWidget {
   const _ProfileSetupScreenContent();
 
+  // 背景图原始比例 (786 x 1966 @2x → 393 x 983 逻辑)
+  static const double _bgAspectRatio = 786.0 / 1966.0;
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ProfileSetupViewModel>();
+    final screenWidth = MediaQuery.of(context).size.width;
+    // 背景图按屏幕宽度等比铺满，高度自适应
+    final bgHeight = screenWidth / _bgAspectRatio;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8DC), // 米黄色背景
-      appBar: AppBar(
-        title: const Text('创建宠物档案'),
-        backgroundColor: const Color(0xFFFFF8DC),
-        elevation: 0,
-        automaticallyImplyLeading: false, // 隐藏返回按钮
+      body: SingleChildScrollView(
+        child: SizedBox(
+          width: screenWidth,
+          height: bgHeight,
+          child: Stack(
+            children: [
+              // 背景图：宽度撑满，高度按比例
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/profile_setup/profile_background.jpg',
+                  fit: BoxFit.fill,
+                ),
+              ),
+
+              // 表单内容
+              Positioned.fill(
+                child: SafeArea(
+                  bottom: false,
+                  child: _buildFormContent(context, vm, screenWidth),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: Stack(
+    );
+  }
+
+  Widget _buildFormContent(
+    BuildContext context,
+    ProfileSetupViewModel vm,
+    double screenWidth,
+  ) {
+    // 自适应内边距：约 13% 屏幕宽度
+    final horizontalPadding = screenWidth * 0.13;
+    // 图标尺寸自适应
+    final iconSize = screenWidth * 0.11;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Column(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 进度指示器
-                _buildProgressIndicator(vm.progressPercentage),
-                const SizedBox(height: 24),
-
-                // 欢迎文案
-                const Text(
-                  '让我们更了解你的宠物',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '填写以下信息，创建专属档案',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // 1. 照片上传
-                PhotoUploadSection(
-                  photo: vm.profilePhoto,
-                  onTap: vm.pickPhoto,
-                  errorMessage: vm.photoError,
-                ),
-                const SizedBox(height: 32),
-
-                // 2. 名称输入
-                NameInputSection(
-                  initialValue: vm.name,
-                  onChanged: vm.setName,
-                ),
-                const SizedBox(height: 32),
-
-                // 3. 主人称呼
-                OwnerNicknameSection(
-                  selectedNickname: vm.ownerNickname,
-                  onSelected: vm.setOwnerNickname,
-                ),
-                const SizedBox(height: 32),
-
-                // 4. 生日选择
-                BirthdayPickerSection(
-                  selectedDate: vm.birthday,
-                  onDateSelected: vm.setBirthday,
-                ),
-                const SizedBox(height: 32),
-
-                // 5. 性别选择
-                GenderSelectorSection(
-                  selectedGender: vm.gender,
-                  onSelected: vm.setGender,
-                ),
-                const SizedBox(height: 32),
-
-                // 6. 性格选择
-                PersonalitySelectorSection(
-                  selectedPersonality: vm.personality,
-                  onSelected: vm.setPersonality,
-                ),
-
-                const SizedBox(height: 120), // 为底部按钮留空间
-              ],
-            ),
-          ),
-
-          // 底部提交按钮
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (vm.errorMessage != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error_outline, color: Colors.red),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              vm.errorMessage!,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: vm.isValid && !vm.isSubmitting
-                          ? () => _handleSubmit(context, vm)
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B4513),
-                        disabledBackgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: vm.isSubmitting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              '完成设置',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
+          // 标题
+          Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 8),
+            child: Text(
+              '创建宠物档案',
+              style: TextStyle(
+                fontSize: screenWidth * 0.055,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFFFFF8DC),
+                shadows: [
+                  Shadow(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    offset: const Offset(1, 1),
+                    blurRadius: 3,
                   ),
                 ],
               ),
             ),
           ),
+
+          const SizedBox(height: 8),
+
+          // 1. 照片上传
+          PhotoUploadSection(
+            photo: vm.profilePhoto,
+            onTap: vm.pickPhoto,
+            errorMessage: vm.photoError,
+            frameSize: screenWidth * 0.5,
+          ),
+
+          const SizedBox(height: 28),
+
+          // 2. 名称输入
+          NameInputSection(
+            initialValue: vm.name,
+            onChanged: vm.setName,
+            iconSize: iconSize,
+          ),
+
+          const SizedBox(height: 28),
+
+          // 3. 主人称呼
+          OwnerNicknameSection(
+            selectedNickname: vm.ownerNickname,
+            onSelected: vm.setOwnerNickname,
+            iconSize: iconSize,
+          ),
+
+          const SizedBox(height: 28),
+
+          // 4. 生日选择
+          BirthdayPickerSection(
+            selectedDate: vm.birthday,
+            onDateSelected: vm.setBirthday,
+            iconSize: iconSize,
+          ),
+
+          const SizedBox(height: 28),
+
+          // 5. 性别选择
+          GenderSelectorSection(
+            selectedGender: vm.gender,
+            onSelected: vm.setGender,
+            iconSize: iconSize,
+          ),
+
+          const SizedBox(height: 28),
+
+          // 6. 性格选择
+          PersonalitySelectorSection(
+            selectedPersonality: vm.personality,
+            onSelected: vm.setPersonality,
+            iconSize: iconSize,
+          ),
+
+          const SizedBox(height: 32),
+
+          // 7. 提交按钮
+          _buildSubmitButton(context, vm, screenWidth),
         ],
       ),
     );
   }
 
-  /// 进度指示器
-  Widget _buildProgressIndicator(double progress) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              '完成度',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-            Text(
-              '${(progress * 100).toInt()}%',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF8B4513),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: progress,
-            backgroundColor: Colors.grey[300],
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
-            minHeight: 6,
+  /// 提交按钮
+  Widget _buildSubmitButton(
+    BuildContext context,
+    ProfileSetupViewModel vm,
+    double screenWidth,
+  ) {
+    final bool canSubmit = vm.isValid && !vm.isSubmitting;
+    final btnWidth = screenWidth * 0.35;
+    final btnHeight = btnWidth * (66 / 270); // 保持素材比例
+
+    return GestureDetector(
+      onTap: canSubmit ? () => _handleSubmit(context, vm) : null,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset(
+            canSubmit
+                ? 'assets/images/profile_setup/btn_submit_active.jpg'
+                : 'assets/images/profile_setup/btn_submit_disabled.jpg',
+            width: btnWidth,
+            height: btnHeight,
+            fit: BoxFit.contain,
           ),
-        ),
-      ],
+          if (vm.isSubmitting)
+            SizedBox(
+              width: btnHeight * 0.6,
+              height: btnHeight * 0.6,
+              child: const CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            )
+          else
+            Text(
+              '完成设置',
+              style: TextStyle(
+                fontSize: screenWidth * 0.033,
+                fontWeight: FontWeight.bold,
+                color: canSubmit
+                    ? const Color(0xFFFFF8DC)
+                    : const Color(0xFFB0A080),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -244,10 +218,8 @@ class _ProfileSetupScreenContent extends StatelessWidget {
     final success = await vm.submitProfile();
 
     if (success && context.mounted) {
-      // 跳转到主页
       Navigator.of(context).pushReplacementNamed('/home');
 
-      // 显示成功提示
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('档案创建成功！'),

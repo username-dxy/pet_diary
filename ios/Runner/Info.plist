@@ -41,10 +41,22 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- 后台模式 -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+	</array>
+
+	<!-- 后台任务标识符 -->
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.petdiary.backgroundPhotoScan</string>
+	</array>
+
 	<!-- 照片库权限说明 -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>需要访问您的相册来选择宠物照片</string>
-	
+	<string>Pet Diary需要访问相册来自动识别宠物照片并生成日记</string>
+
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>需要保存照片到相册</string>
 

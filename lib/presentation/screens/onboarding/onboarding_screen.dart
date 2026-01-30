@@ -51,15 +51,6 @@ class OnboardingScreen extends StatelessWidget {
                                   color: Colors.brown[700],
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'GIF加载失败\n请检查资源文件',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.brown[500],
-                                ),
-                              ),
                             ],
                           ),
                         );
@@ -94,15 +85,14 @@ class OnboardingScreen extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              // 登录按钮
+              // 开始按钮
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: 实现登录逻辑
-                    debugPrint('点击了登录按钮');
-                    _showComingSoonDialog(context, '登录');
+                    // 进入档案设置页面
+                    Navigator.of(context).pushReplacementNamed('/profile-setup');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8B4513),
@@ -113,7 +103,7 @@ class OnboardingScreen extends StatelessWidget {
                     elevation: 2,
                   ),
                   child: const Text(
-                    '登录',
+                    '开始使用',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -122,74 +112,26 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
 
-              // 游客入口
-              TextButton(
-                onPressed: () {
-                  // TODO: 作为游客进入
-                  debugPrint('以游客身份进入');
-                  _enterAsGuest(context);
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF8B4513),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.person_outline,
-                      size: 20,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '以游客身份继续',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
+              // 隐私提示
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '所有数据均保存在本地设备，不会上传到任何服务器',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
           ),
         ),
       ),
     );
-  }
-
-  /// 显示"功能开发中"对话框
-  void _showComingSoonDialog(BuildContext context, String feature) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.construction, color: Colors.orange[700]),
-            const SizedBox(width: 12),
-            Text('$feature功能'),
-          ],
-        ),
-        content: const Text('该功能正在开发中，敬请期待！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('知道了'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 以游客身份进入
-  void _enterAsGuest(BuildContext context) {
-    // 进入档案设置页面
-    Navigator.of(context).pushReplacementNamed('/profile-setup');
   }
 }

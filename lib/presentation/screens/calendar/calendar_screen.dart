@@ -26,43 +26,64 @@ class _CalendarScreenContent extends StatelessWidget {
     final viewModel = context.watch<CalendarViewModel>();
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('${viewModel.currentYear}年${viewModel.currentMonth}月'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          '${viewModel.currentYear}年${viewModel.currentMonth}月',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_left, color: Colors.white),
             onPressed: () => viewModel.changeMonth(-1),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_right),
+            icon: const Icon(Icons.chevron_right, color: Colors.white),
             onPressed: () => viewModel.changeMonth(1),
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // 星期标题
-          _buildWeekHeader(),
+          // 背景图片
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/room/room_calendar_expanded.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
 
-          // 月度网格
-          Expanded(
-            child: MonthGridWidget(
-              year: viewModel.currentYear,
-              month: viewModel.currentMonth,
-              records: viewModel.monthRecords,
-              onDayTap: (date) {
-                _handleDayTap(context, viewModel, date);
-              },
+          // 内容
+          SafeArea(
+            child: Column(
+              children: [
+                // 星期标题
+                _buildWeekHeader(),
+
+                // 月度网格
+                Expanded(
+                  child: MonthGridWidget(
+                    year: viewModel.currentYear,
+                    month: viewModel.currentMonth,
+                    records: viewModel.monthRecords,
+                    onDayTap: (date) {
+                      _handleDayTap(context, viewModel, date);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-      
+
       // 添加按钮
       floatingActionButton: FloatingActionButton.large(
         onPressed: () => _handleAddEmotion(context, viewModel),
@@ -76,11 +97,10 @@ class _CalendarScreenContent extends StatelessWidget {
     const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!),
-        ),
+        color: Colors.white.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -92,7 +112,7 @@ class _CalendarScreenContent extends StatelessWidget {
                 day,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey,
+                  color: Colors.brown,
                   fontSize: 14,
                 ),
               ),

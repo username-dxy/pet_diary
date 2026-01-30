@@ -1,109 +1,69 @@
 import 'package:flutter/material.dart';
 
-/// 主人称呼 Section
+/// 主人称呼 Section - Figma 木质风格
 class OwnerNicknameSection extends StatelessWidget {
   final String selectedNickname;
   final Function(String) onSelected;
+  final double iconSize;
 
   const OwnerNicknameSection({
     Key? key,
     required this.selectedNickname,
     required this.onSelected,
+    this.iconSize = 40,
   }) : super(key: key);
+
+  static const _predefinedOptions = ['主人', '铲屎官', '爸爸'];
 
   @override
   Widget build(BuildContext context) {
-    final predefinedOptions = ['主人', '铲屎官', '爸爸', '妈妈'];
+    final isCustom = selectedNickname.isNotEmpty &&
+        !_predefinedOptions.contains(selectedNickname);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
-          '🗣️ Ta希望怎么称呼你？',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+        Image.asset(
+          'assets/images/profile_setup/icon_dialogue.png',
+          width: iconSize,
+          height: iconSize,
         ),
-        const SizedBox(height: 8),
-        const Text(
-          '选择或自定义称呼',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            ...predefinedOptions.map((option) => _buildOptionChip(
-                  option,
-                  isSelected: selectedNickname == option,
-                  onTap: () => onSelected(option),
-                )),
-            _buildOptionChip(
-              '自定义...',
-              isSelected: !predefinedOptions.contains(selectedNickname),
-              onTap: () => _showCustomDialog(context),
-            ),
-          ],
-        ),
-        if (!predefinedOptions.contains(selectedNickname) &&
-            selectedNickname.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B4513).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFF8B4513),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Color(0xFF8B4513)),
-                const SizedBox(width: 8),
-                Text(
-                  '自定义称呼：$selectedNickname',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF8B4513),
-                  ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '希望TA怎么称呼您？',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5C3D1A),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ..._predefinedOptions.map((option) {
+                    return _WoodChip(
+                      label: option,
+                      isSelected: selectedNickname == option,
+                      onTap: () => onSelected(option),
+                    );
+                  }),
+                  _WoodChip(
+                    label: isCustom ? selectedNickname : '自定义',
+                    isSelected: isCustom,
+                    onTap: () => _showCustomDialog(context),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ],
-    );
-  }
-
-  Widget _buildOptionChip(String label, {required bool isSelected, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF8B4513) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF8B4513) : const Color(0xFFD2B48C),
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
     );
   }
 
@@ -145,5 +105,53 @@ class OwnerNicknameSection extends StatelessWidget {
     if (result != null && result.isNotEmpty) {
       onSelected(result);
     }
+  }
+}
+
+/// 木质风格选项 Chip
+class _WoodChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _WoodChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 60,
+        height: 33,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.asset(
+                isSelected
+                    ? 'assets/images/profile_setup/chip_selected.jpg'
+                    : 'assets/images/profile_setup/chip_unselected.jpg',
+                width: 60,
+                height: 33,
+                fit: BoxFit.fill,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: const Color(0xFF5C3D1A),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -3,17 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pet_diary/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:pet_diary/presentation/screens/home/home_screen.dart';
 import 'package:pet_diary/presentation/screens/profile_setup/profile_setup_screen.dart';
-// import 'package:pet_diary/pages/api_test_page.dart'; // 测试页面，生产环境不需要
-import 'package:pet_diary/config/api_config.dart';
+import 'package:pet_diary/presentation/screens/settings/settings_screen.dart';
 
 void main() {
-  // 初始化 API 配置
-  // 开发环境使用本地 Mock Server
-  ApiConfig.setEnvironment(Environment.development);
-
-  // 生产环境使用时，改为：
-  // ApiConfig.setEnvironment(Environment.production);
-
   runApp(const MyApp());
 }
 
@@ -46,7 +38,7 @@ class MyApp extends StatelessWidget {
         '/onboarding': (context) => const OnboardingScreen(),
         '/profile-setup': (context) => const ProfileSetupScreen(),
         '/home': (context) => const HomeScreen(),
-        // '/api-test': (context) => const ApiTestPage(), // API测试页面，生产环境不需要
+        '/settings': (context) => const SettingsScreen(),
       }
     );
   }

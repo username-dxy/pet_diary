@@ -12,12 +12,28 @@ class HomeViewModel extends ChangeNotifier {
   EmotionRecord? _todaySticker;
   bool _hasNewDiary = false;
   bool _isLoading = false;
+  bool _isDrawerOpen = false;
 
   // Getters
   Pet? get currentPet => _currentPet;
   EmotionRecord? get todaySticker => _todaySticker;
   bool get hasNewDiary => _hasNewDiary;
   bool get isLoading => _isLoading;
+  bool get isDrawerOpen => _isDrawerOpen;
+
+  /// 切换抽屉状态
+  void toggleDrawer() {
+    _isDrawerOpen = !_isDrawerOpen;
+    notifyListeners();
+  }
+
+  /// 关闭抽屉
+  void closeDrawer() {
+    if (_isDrawerOpen) {
+      _isDrawerOpen = false;
+      notifyListeners();
+    }
+  }
 
   /// 加载数据
   Future<void> loadData() async {

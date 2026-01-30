@@ -1,93 +1,85 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
-/// 照片上传 Section
+/// 照片上传 Section - Figma 木质相框风格
 class PhotoUploadSection extends StatelessWidget {
   final File? photo;
   final VoidCallback onTap;
   final String? errorMessage;
+  final double frameSize;
 
   const PhotoUploadSection({
     Key? key,
     required this.photo,
     required this.onTap,
     this.errorMessage,
+    this.frameSize = 195.0,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // 内部热区按相框比例计算: 145/195 ≈ 0.7436
+    final innerSize = frameSize * (145.0 / 195.0);
+    final innerOffset = (frameSize - innerSize) / 2;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '📷 上传宠物照片',
+          '上传宠物照片',
           style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Color(0xFF5C3D1A),
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          '让我们看看Ta可爱的样子吧',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: GestureDetector(
-            onTap: onTap,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: errorMessage != null ? Colors.red : const Color(0xFFD2B48C),
-                  width: 2,
+        GestureDetector(
+          onTap: onTap,
+          child: SizedBox(
+            width: frameSize,
+            height: frameSize,
+            child: Stack(
+              children: [
+                // 木质相框
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/images/profile_setup/photo_frame.jpg',
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-              child: photo != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Image.file(
-                        photo!,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_a_photo,
-                          size: 48,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '点击上传照片',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
+
+                // 中心区域：显示用户照片或占位 +
+                Positioned(
+                  left: innerOffset,
+                  top: innerOffset,
+                  width: innerSize,
+                  height: innerSize,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: photo != null
+                        ? Image.file(
+                            photo!,
+                            fit: BoxFit.cover,
+                            width: innerSize,
+                            height: innerSize,
+                          )
+                        : Center(
+                            child: Icon(
+                              Icons.add,
+                              size: frameSize * 0.18,
+                              color: Colors.brown.withValues(alpha: 0.4),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         if (errorMessage != null) ...[
           const SizedBox(height: 8),
-          Center(
-            child: Text(
-              errorMessage!,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 12,
-              ),
-            ),
+          Text(
+            errorMessage!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
         ],
       ],

@@ -36,6 +36,58 @@
       "personality": "playful",
       "createdAt": "2026-01-27T07:57:18.557Z",
       "updatedAt": "2026-01-27T07:57:18.558Z"
+    },
+    {
+      "id": "eeb35451-bf29-4931-b50e-55bd38f13b07",
+      "name": "up",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/394CAE1A-904C-4853-9D27-F4FBE4B8BEA1/Documents/diary_photos/diary_1769591307476.jpg",
+      "birthday": "2025-01-01T00:00:00.000",
+      "ownerNickname": "妈妈",
+      "gender": "unknown",
+      "personality": "quiet",
+      "createdAt": "2026-01-28T09:08:27.652Z",
+      "updatedAt": "2026-01-28T09:08:27.653Z"
+    },
+    {
+      "id": "5f6a4cd1-e70d-4d92-8876-938f2beafa45",
+      "name": "Mimi",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/4DEAE695-9AB5-4CA8-B19F-DB99112B673F/Documents/diary_photos/diary_1769683009038.jpg",
+      "birthday": "2025-01-12T00:00:00.000",
+      "ownerNickname": "妈妈",
+      "gender": "female",
+      "personality": "lively",
+      "createdAt": "2026-01-29T10:36:49.146Z",
+      "updatedAt": "2026-01-29T10:36:49.148Z"
+    },
+    {
+      "id": "a9288b5f-af42-4b29-81a0-19b749b2077f",
+      "name": "mini",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/C2739AD3-AA1D-4528-8611-B95CDB2DFDB4/Documents/diary_photos/diary_1769701283083.jpg",
+      "birthday": null,
+      "ownerNickname": "主人",
+      "gender": "male",
+      "personality": "quiet",
+      "createdAt": "2026-01-29T15:41:23.271Z",
+      "updatedAt": "2026-01-29T15:41:23.273Z"
+    },
+    {
+      "id": "48de89a2-29f1-43d5-853a-e5094b0eb965",
+      "name": "up",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/2D417443-A968-4CC6-831D-B6DEE35D8B26/Documents/diary_photos/diary_1769791472877.jpg",
+      "birthday": "2025-01-08T00:00:00.000",
+      "ownerNickname": "主人",
+      "gender": "unknown",
+      "personality": "quiet",
+      "createdAt": "2026-01-30T16:44:33.020Z",
+      "updatedAt": "2026-01-30T16:44:33.028Z"
     }
   ],
   "photos": [],

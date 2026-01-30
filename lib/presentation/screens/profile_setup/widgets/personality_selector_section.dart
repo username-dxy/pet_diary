@@ -1,83 +1,104 @@
 import 'package:flutter/material.dart';
 import '../../../../data/models/pet.dart';
 
-/// 性格选择 Section
+/// 性格选择 Section - Figma 木质风格
 class PersonalitySelectorSection extends StatelessWidget {
   final PetPersonality? selectedPersonality;
   final Function(PetPersonality) onSelected;
+  final double iconSize;
 
   const PersonalitySelectorSection({
     Key? key,
     required this.selectedPersonality,
     required this.onSelected,
+    this.iconSize = 40,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '✨ Ta的性格是？',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Image.asset(
+            'assets/images/profile_setup/icon_paw.png',
+            width: iconSize,
+            height: iconSize,
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
-          '选择最符合Ta的性格',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'TA的性格是？',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF5C3D1A),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PetPersonality.values.map((personality) {
+                  final isSelected = selectedPersonality == personality;
+                  return _WoodChip(
+                    label: personality.displayName,
+                    isSelected: isSelected,
+                    onTap: () => onSelected(personality),
+                  );
+                }).toList(),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1.2,
-          children: PetPersonality.values.map((personality) {
-            return _buildPersonalityCard(personality);
-          }).toList(),
         ),
       ],
     );
   }
+}
 
-  Widget _buildPersonalityCard(PetPersonality personality) {
-    final isSelected = selectedPersonality == personality;
+class _WoodChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
+  const _WoodChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onSelected(personality),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF8B4513).withOpacity(0.1)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF8B4513) : const Color(0xFFD2B48C),
-            width: isSelected ? 2 : 1.5,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      onTap: onTap,
+      child: SizedBox(
+        width: 60,
+        height: 33,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Text(
-              personality.icon,
-              style: const TextStyle(fontSize: 28),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: Image.asset(
+                isSelected
+                    ? 'assets/images/profile_setup/chip_selected.jpg'
+                    : 'assets/images/profile_setup/chip_unselected.jpg',
+                width: 60,
+                height: 33,
+                fit: BoxFit.fill,
+              ),
             ),
-            const SizedBox(height: 8),
             Text(
-              personality.displayName,
+              label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? const Color(0xFF8B4513) : Colors.black87,
+                color: const Color(0xFF5C3D1A),
               ),
             ),
           ],
