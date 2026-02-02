@@ -121,31 +121,56 @@ class SettingsViewModel extends ChangeNotifier {
     }
   }
 
-  /// Perform manual scan
-  Future<List<ScanResult>> performManualScan() async {
+  /// Perform manual scan (fire-and-forget, results stream via EventChannel)
+  /// Returns true if scan was triggered successfully.
+  Future<bool> performManualScan() async {
     if (!hasPermission) {
       _errorMessage = '请先授权相册访问权限';
       notifyListeners();
-      return [];
+      return false;
     }
 
     _isScanning = true;
     _errorMessage = null;
+    _lastScanResults = [];
     notifyListeners();
 
     try {
-      final results = await _scanService.performManualScan();
-      _lastScanResults = results;
+      final triggered = await _scanService.performManualScan();
+      if (!triggered) {
+        _errorMessage = '触发扫描失败';
+        _isScanning = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Listen for results via EventChannel
+      await for (final event in _scanService.rawScanEventStream) {
+        final type = event['type'] as String?;
+        if (type == 'scanComplete') {
+          final total = event['totalFound'] as int? ?? 0;
+          debugPrint('[Settings] Manual scan complete: $total found');
+          break;
+        } else if (type == 'scanResult') {
+          try {
+            _lastScanResults.add(ScanResult.fromMap(event));
+            notifyListeners();
+          } catch (e) {
+            debugPrint('[Settings] Failed to parse scan result: $e');
+          }
+        }
+      }
+
       _lastScanTime = DateTime.now();
       await _settingsRepository.setLastScanTime(_lastScanTime!);
       await _settingsRepository.incrementScanCount();
 
-      debugPrint('[Settings] Manual scan found ${results.length} pets');
-      return results;
+      debugPrint('[Settings] Manual scan found ${_lastScanResults.length} pets');
+      return true;
     } catch (e) {
       _errorMessage = '扫描失败：$e';
       debugPrint('[Settings] Manual scan error: $e');
-      return [];
+      return false;
     } finally {
       _isScanning = false;
       notifyListeners();

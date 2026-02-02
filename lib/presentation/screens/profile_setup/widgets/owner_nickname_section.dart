@@ -13,7 +13,7 @@ class OwnerNicknameSection extends StatelessWidget {
     this.iconSize = 40,
   }) : super(key: key);
 
-  static const _predefinedOptions = ['主人', '铲屎官', '爸爸'];
+  static const _predefinedOptions = ['主人', '铲屎官', '妈妈'];
 
   @override
   Widget build(BuildContext context) {

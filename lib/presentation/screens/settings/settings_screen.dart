@@ -275,17 +275,21 @@ class _SettingsScreenContent extends StatelessWidget {
 
   Future<void> _performManualScan(
       BuildContext context, SettingsViewModel vm) async {
-    final results = await vm.performManualScan();
+    final triggered = await vm.performManualScan();
 
     if (!context.mounted) return;
 
-    if (results.isEmpty) {
+    if (!triggered) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('扫描触发失败')),
+      );
+    } else if (vm.lastScanResults.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('未发现新的宠物照片')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('发现 ${results.length} 张宠物照片')),
+        SnackBar(content: Text('发现 ${vm.lastScanResults.length} 张宠物照片')),
       );
     }
   }

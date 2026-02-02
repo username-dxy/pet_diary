@@ -12,6 +12,9 @@ class BackgroundTaskManager {
     private var methodChannel: FlutterMethodChannel?
     private let photoScanner = PhotoScannerService.shared
 
+    /// EventChannel stream handler for streaming scan results
+    var eventStreamHandler: PhotoScanEventStreamHandler?
+
     /// UserDefaults key for background scan enabled state
     private let enabledKey = "com.petdiary.backgroundScanEnabled"
 
@@ -20,6 +23,11 @@ class BackgroundTaskManager {
     /// Set the method channel for communication with Flutter
     func setMethodChannel(_ channel: FlutterMethodChannel) {
         self.methodChannel = channel
+    }
+
+    /// Set the event stream handler for streaming results via EventChannel
+    func setEventStreamHandler(_ handler: PhotoScanEventStreamHandler) {
+        self.eventStreamHandler = handler
     }
 
     /// Register background tasks with the system
@@ -93,15 +101,23 @@ class BackgroundTaskManager {
             task.setTaskCompleted(success: false)
         }
 
-        // Perform the scan
+        // Perform the scan, streaming results via EventChannel
         Task {
-            let results = await photoScanner.scanForPets(limit: 30)
+            let results = await photoScanner.scanForPets(limit: 30) { [weak self] result in
+                // Stream each result via EventChannel
+                DispatchQueue.main.async {
+                    self?.eventStreamHandler?.sendResult(result.toDict())
+                }
+            }
 
+            // Send scan complete sentinel
+            DispatchQueue.main.async { [weak self] in
+                self?.eventStreamHandler?.sendScanComplete(totalFound: results.count)
+            }
+
+            // Also notify via MethodChannel for backward compatibility
             if !results.isEmpty {
-                // Convert results to Flutter-compatible format
                 let resultsArray = results.map { $0.toDict() }
-
-                // Notify Flutter on main thread
                 DispatchQueue.main.async { [weak self] in
                     self?.methodChannel?.invokeMethod("onPetPhotosFound", arguments: resultsArray)
                     print("[BackgroundTask] Sent \(results.count) pet photos to Flutter")
@@ -114,9 +130,21 @@ class BackgroundTaskManager {
     }
 
     /// Perform a manual scan (called from Flutter)
+    /// Results are streamed via EventChannel; this returns the full array for backward compat.
     func performManualScan() async -> [[String: Any]] {
         print("[BackgroundTask] Manual scan started")
-        let results = await photoScanner.scanForPets(limit: 50)
+        let results = await photoScanner.scanForPets(limit: 50) { [weak self] result in
+            // Stream each result via EventChannel
+            DispatchQueue.main.async {
+                self?.eventStreamHandler?.sendResult(result.toDict())
+            }
+        }
+
+        // Send scan complete sentinel
+        DispatchQueue.main.async { [weak self] in
+            self?.eventStreamHandler?.sendScanComplete(totalFound: results.count)
+        }
+
         return results.map { $0.toDict() }
     }
 
@@ -128,5 +156,39 @@ class BackgroundTaskManager {
     /// Reset processed photos for testing
     func resetProcessedPhotos() {
         photoScanner.resetProcessedPhotos()
+    }
+}
+
+/// FlutterStreamHandler for EventChannel — streams scan results to Flutter
+class PhotoScanEventStreamHandler: NSObject, FlutterStreamHandler {
+    private var eventSink: FlutterEventSink?
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.eventSink = events
+        print("[PhotoScanEvent] EventChannel listener attached")
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.eventSink = nil
+        print("[PhotoScanEvent] EventChannel listener detached")
+        return nil
+    }
+
+    /// Send a single scan result to Flutter
+    func sendResult(_ result: [String: Any]) {
+        var event = result
+        event["type"] = "scanResult"
+        eventSink?(event)
+    }
+
+    /// Send scan complete sentinel to Flutter
+    func sendScanComplete(totalFound: Int) {
+        let event: [String: Any] = [
+            "type": "scanComplete",
+            "totalFound": totalFound
+        ]
+        eventSink?(event)
+        print("[PhotoScanEvent] Scan complete: \(totalFound) found")
     }
 }

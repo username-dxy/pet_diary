@@ -79,7 +79,7 @@ class PhotoScannerService {
     ///   - limit: Maximum number of photos to scan (default 30)
     ///   - sinceDate: Only scan photos added after this date (default: nil = scan all unprocessed)
     /// - Returns: Array of PhotoScanResult containing detected pet photos
-    func scanForPets(limit: Int = 30, sinceDate: Date? = nil) async -> [PhotoScanResult] {
+    func scanForPets(limit: Int = 30, sinceDate: Date? = nil, onResultFound: ((PhotoScanResult) -> Void)? = nil) async -> [PhotoScanResult] {
         guard hasPermission else {
             print("[PhotoScanner] No permission to access photos")
             return []
@@ -148,6 +148,7 @@ class PhotoScannerService {
                                 confidence: recognitionResult.confidence
                             )
                             results.append(result)
+                            onResultFound?(result)
                             print("[PhotoScanner] Found pet: \(animalType) (confidence: \(recognitionResult.confidence))")
                         } catch {
                             print("[PhotoScanner] Failed to save temp file: \(error)")

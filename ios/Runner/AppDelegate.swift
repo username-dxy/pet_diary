@@ -40,7 +40,16 @@ import Photos
             self?.handleMethodCall(call, result: result)
         }
 
-        print("[AppDelegate] MethodChannel setup complete")
+        // Setup EventChannel for streaming scan results
+        let eventChannel = FlutterEventChannel(
+            name: "com.petdiary/photo_scan_events",
+            binaryMessenger: controller.binaryMessenger
+        )
+        let streamHandler = PhotoScanEventStreamHandler()
+        eventChannel.setStreamHandler(streamHandler)
+        BackgroundTaskManager.shared.setEventStreamHandler(streamHandler)
+
+        print("[AppDelegate] MethodChannel + EventChannel setup complete")
     }
 
     private func handleMethodCall(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -57,12 +66,11 @@ import Photos
             result(BackgroundTaskManager.shared.isEnabled)
 
         case "performManualScan":
+            // Fire-and-forget: return true immediately, results stream via EventChannel
             Task {
-                let scanResults = await BackgroundTaskManager.shared.performManualScan()
-                DispatchQueue.main.async {
-                    result(scanResults)
-                }
+                _ = await BackgroundTaskManager.shared.performManualScan()
             }
+            result(true)
 
         case "requestPhotoPermission":
             Task {

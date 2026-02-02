@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pet_diary/data/models/scan_result.dart';
@@ -17,27 +19,27 @@ class BackgroundScanService {
   static const MethodChannel _channel =
       MethodChannel('com.petdiary/background_scan');
 
-  /// Callback for when pet photos are found in background
-  Function(List<ScanResult>)? onPetPhotosFound;
+  static const EventChannel _eventChannel =
+      EventChannel('com.petdiary/photo_scan_events');
+
+  /// Raw event stream from the EventChannel (includes scanComplete sentinels)
+  late final Stream<Map<String, dynamic>> rawScanEventStream;
+
+  /// Filtered stream of scan results only (no sentinels)
+  late final Stream<ScanResult> scanResultStream;
 
   BackgroundScanService() {
-    _setupMethodCallHandler();
-  }
+    // Setup EventChannel broadcast stream
+    final broadcastStream = _eventChannel
+        .receiveBroadcastStream()
+        .map((event) => Map<String, dynamic>.from(event as Map))
+        .asBroadcastStream();
 
-  /// Setup handler for callbacks from iOS
-  void _setupMethodCallHandler() {
-    _channel.setMethodCallHandler((call) async {
-      if (call.method == 'onPetPhotosFound') {
-        final List<dynamic> results = call.arguments as List<dynamic>;
-        final scanResults = results
-            .map((e) => ScanResult.fromMap(e as Map<dynamic, dynamic>))
-            .toList();
+    rawScanEventStream = broadcastStream;
 
-        debugPrint(
-            '[BackgroundScan] Received ${scanResults.length} pet photos from background');
-        onPetPhotosFound?.call(scanResults);
-      }
-    });
+    scanResultStream = broadcastStream
+        .where((event) => event['type'] != 'scanComplete')
+        .map((event) => ScanResult.fromMap(event));
   }
 
   /// Enable background scanning
@@ -78,28 +80,19 @@ class BackgroundScanService {
     }
   }
 
-  /// Perform a manual scan
-  /// Returns list of detected pet photos
-  Future<List<ScanResult>> performManualScan() async {
+  /// Perform a manual scan (fire-and-forget)
+  /// Returns true if scan was triggered successfully.
+  /// Results arrive via [scanResultStream] / [rawScanEventStream].
+  Future<bool> performManualScan() async {
     try {
-      debugPrint('[BackgroundScan] Starting manual scan...');
-      final List<dynamic>? results =
-          await _channel.invokeMethod<List<dynamic>>('performManualScan');
-
-      if (results == null || results.isEmpty) {
-        debugPrint('[BackgroundScan] Manual scan: no pets found');
-        return [];
-      }
-
-      final scanResults = results
-          .map((e) => ScanResult.fromMap(e as Map<dynamic, dynamic>))
-          .toList();
-      debugPrint(
-          '[BackgroundScan] Manual scan found ${scanResults.length} pets');
-      return scanResults;
+      debugPrint('[BackgroundScan] Triggering manual scan...');
+      final result =
+          await _channel.invokeMethod<bool>('performManualScan') ?? false;
+      debugPrint('[BackgroundScan] Manual scan triggered: $result');
+      return result;
     } catch (e) {
-      debugPrint('[BackgroundScan] Manual scan failed: $e');
-      return [];
+      debugPrint('[BackgroundScan] Manual scan trigger failed: $e');
+      return false;
     }
   }
 

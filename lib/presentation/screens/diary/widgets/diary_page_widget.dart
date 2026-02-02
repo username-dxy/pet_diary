@@ -13,14 +13,6 @@ class DiaryPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 打印日志
-    debugPrint('');
-    debugPrint('📖 渲染日记卡片:');
-    debugPrint('日记ID: ${entry.id}');
-    debugPrint('日记日期: ${entry.date}');
-    debugPrint('图片路径: ${entry.imagePath}');
-    debugPrint('');
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: BoxDecoration(
@@ -46,7 +38,7 @@ class DiaryPageWidget extends StatelessWidget {
                 color: Color(0xFF8B4513),
               ),
               child: Text(
-                _formatDate(entry.date),  // ← 显示照片的日期
+                _formatDate(entry.date),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -63,21 +55,22 @@ class DiaryPageWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 配图（用户上传的照片）
-                    _buildDiaryImage(),
+                    // 配图（多照片或单照片）
+                    _buildDiaryImages(),
 
                     const SizedBox(height: 20),
 
                     // 日记正文
-                    Text(
-                      entry.content,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        height: 1.8,
-                        color: Color(0xFF333333),
-                        letterSpacing: 0.5,
+                    if (entry.content.isNotEmpty)
+                      Text(
+                        entry.content,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.8,
+                          color: Color(0xFF333333),
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -111,53 +104,181 @@ class DiaryPageWidget extends StatelessWidget {
     );
   }
 
-  /// 构建日记配图（必须使用用户上传的照片）
-  Widget _buildDiaryImage() {
-    if (entry.imagePath == null || entry.imagePath!.isEmpty) {
-      debugPrint('⚠️ 警告：日记没有配图路径');
-      return _buildPlaceholder();
+  /// 构建日记配图 — 优先使用 imageUrls（网络），fallback 到 imagePath（本地）
+  Widget _buildDiaryImages() {
+    // 优先使用服务端返回的 imageUrls
+    if (entry.imageUrls.isNotEmpty) {
+      return _buildNetworkImageList(entry.imageUrls);
     }
 
-    debugPrint('🖼️ 加载照片: ${entry.imagePath}');
-    
-    // 检查文件是否存在
-    final file = File(entry.imagePath!);
-    
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Image.file(
-        file,
-        width: double.infinity,
-        height: 250,  // 增大图片高度
-        fit: BoxFit.cover,
-        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-          if (wasSynchronouslyLoaded) {
-            debugPrint('✅ 照片加载成功（同步）');
-            return child;
-          }
-          
-          if (frame == null) {
-            debugPrint('⏳ 照片加载中...');
-            return Container(
+    // Fallback 到本地 imagePath
+    if (entry.imagePath != null && entry.imagePath!.isNotEmpty) {
+      return _buildLocalImage(entry.imagePath!);
+    }
+
+    return _buildPlaceholder();
+  }
+
+  /// 构建网络图片列表（水平滚动）
+  Widget _buildNetworkImageList(List<String> urls) {
+    if (urls.length == 1) {
+      // 单张图片全宽展示
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              urls.first,
               width: double.infinity,
               height: 250,
-              color: Colors.grey[200],
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
+              fit: BoxFit.cover,
+              loadingBuilder: _networkImageLoadingBuilder,
+              errorBuilder: _networkImageErrorBuilder,
+            ),
+          ),
+          const SizedBox(height: 6),
+          _buildPhotoCount(1),
+        ],
+      );
+    }
+
+    // 多张图片水平滚动
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 250,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: urls.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  urls[index],
+                  width: 250,
+                  height: 250,
+                  fit: BoxFit.cover,
+                  loadingBuilder: _networkImageLoadingBuilder,
+                  errorBuilder: _networkImageErrorBuilder,
                 ),
-              ),
-            );
-          }
-          
-          debugPrint('✅ 照片加载成功（异步）');
-          return child;
-        },
-        errorBuilder: (context, error, stackTrace) {
-          debugPrint('❌ 照片加载失败: $error');
-          debugPrint('路径: ${entry.imagePath}');
-          return _buildPlaceholder();
-        },
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 6),
+        _buildPhotoCount(urls.length),
+      ],
+    );
+  }
+
+  /// 构建本地文件图片（单张，兼容旧数据）
+  Widget _buildLocalImage(String path) {
+    // Check if it's a network URL (http/https)
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              path,
+              width: double.infinity,
+              height: 250,
+              fit: BoxFit.cover,
+              loadingBuilder: _networkImageLoadingBuilder,
+              errorBuilder: _networkImageErrorBuilder,
+            ),
+          ),
+          const SizedBox(height: 6),
+          _buildPhotoCount(1),
+        ],
+      );
+    }
+
+    final file = File(path);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.file(
+            file,
+            width: double.infinity,
+            height: 250,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildPlaceholder();
+            },
+          ),
+        ),
+        const SizedBox(height: 6),
+        _buildPhotoCount(1),
+      ],
+    );
+  }
+
+  /// 网络图片加载中
+  Widget _networkImageLoadingBuilder(
+    BuildContext context,
+    Widget child,
+    ImageChunkEvent? loadingProgress,
+  ) {
+    if (loadingProgress == null) return child;
+    return Container(
+      width: 250,
+      height: 250,
+      color: Colors.grey[200],
+      child: Center(
+        child: CircularProgressIndicator(
+          value: loadingProgress.expectedTotalBytes != null
+              ? loadingProgress.cumulativeBytesLoaded /
+                  loadingProgress.expectedTotalBytes!
+              : null,
+          valueColor:
+              const AlwaysStoppedAnimation<Color>(Color(0xFF8B4513)),
+          strokeWidth: 2,
+        ),
+      ),
+    );
+  }
+
+  /// 网络图片加载错误
+  Widget _networkImageErrorBuilder(
+    BuildContext context,
+    Object error,
+    StackTrace? stackTrace,
+  ) {
+    return Container(
+      width: 250,
+      height: 250,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0E6D2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image, size: 40, color: Colors.brown[300]),
+          const SizedBox(height: 8),
+          Text(
+            '加载失败',
+            style: TextStyle(fontSize: 12, color: Colors.brown[400]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 照片计数标签
+  Widget _buildPhotoCount(int count) {
+    return Text(
+      '$count 张照片',
+      style: TextStyle(
+        fontSize: 12,
+        color: Colors.grey[500],
       ),
     );
   }
@@ -185,7 +306,7 @@ class DiaryPageWidget extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '照片加载失败',
+            '暂无照片',
             style: TextStyle(
               fontSize: 16,
               color: Colors.brown[400],

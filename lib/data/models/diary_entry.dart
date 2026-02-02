@@ -6,7 +6,8 @@ class DiaryEntry extends Equatable {
   final String petId;
   final DateTime date;
   final String content;
-  final String? imagePath;           // ← 添加这个字段
+  final String? imagePath;
+  final List<String> imageUrls;
   final bool isLocked;
   final String? emotionRecordId;
   final DateTime createdAt;
@@ -16,19 +17,22 @@ class DiaryEntry extends Equatable {
     required this.petId,
     required this.date,
     required this.content,
-    this.imagePath,                  // ← 添加这个参数
+    this.imagePath,
+    this.imageUrls = const [],
     this.isLocked = false,
     this.emotionRecordId,
     required this.createdAt,
   });
 
   factory DiaryEntry.fromJson(Map<String, dynamic> json) {
+    final rawImageUrls = json['imageUrls'] as List<dynamic>?;
     return DiaryEntry(
       id: json['id'] as String,
       petId: json['petId'] as String,
       date: DateTime.parse(json['date'] as String),
       content: json['content'] as String,
-      imagePath: json['imagePath'] as String?,  // ← 添加这行
+      imagePath: json['imagePath'] as String?,
+      imageUrls: rawImageUrls?.map((e) => e.toString()).toList() ?? const [],
       isLocked: json['isLocked'] as bool? ?? false,
       emotionRecordId: json['emotionRecordId'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -41,7 +45,8 @@ class DiaryEntry extends Equatable {
       'petId': petId,
       'date': date.toIso8601String(),
       'content': content,
-      'imagePath': imagePath,  // ← 添加这行
+      'imagePath': imagePath,
+      'imageUrls': imageUrls,
       'isLocked': isLocked,
       'emotionRecordId': emotionRecordId,
       'createdAt': createdAt.toIso8601String(),
@@ -50,7 +55,8 @@ class DiaryEntry extends Equatable {
 
   DiaryEntry copyWith({
     String? content,
-    String? imagePath,  // ← 添加这个参数
+    String? imagePath,
+    List<String>? imageUrls,
     bool? isLocked,
   }) {
     return DiaryEntry(
@@ -58,7 +64,8 @@ class DiaryEntry extends Equatable {
       petId: petId,
       date: date,
       content: content ?? this.content,
-      imagePath: imagePath ?? this.imagePath,  // ← 添加这行
+      imagePath: imagePath ?? this.imagePath,
+      imageUrls: imageUrls ?? this.imageUrls,
       isLocked: isLocked ?? this.isLocked,
       emotionRecordId: emotionRecordId,
       createdAt: createdAt,
@@ -66,5 +73,6 @@ class DiaryEntry extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, date, content, imagePath, isLocked];
+  List<Object?> get props =>
+      [id, date, content, imagePath, imageUrls, isLocked];
 }

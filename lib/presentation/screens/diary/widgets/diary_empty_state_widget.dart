@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DiaryEmptyStateWidget extends StatelessWidget {
-  final VoidCallback? onPickPhotos;
-
-  const DiaryEmptyStateWidget({
-    super.key,
-    this.onPickPhotos,
-  });
+  const DiaryEmptyStateWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,24 +23,12 @@ class DiaryEmptyStateWidget extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '添加照片到相册后\nAI会自动生成你的专属日记',
+              '扫描相册中的宠物照片后\nAI会自动生成你的专属日记',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey[600],
                 height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: onPickPhotos,
-              icon: const Icon(Icons.photo_library),
-              label: const Text('选择照片'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8B4513),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                textStyle: const TextStyle(fontSize: 18),
               ),
             ),
           ],
