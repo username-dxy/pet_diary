@@ -68,6 +68,8 @@
 	<!-- 允许HTTP访问本地服务器（仅用于开发测试） -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>localhost</key>

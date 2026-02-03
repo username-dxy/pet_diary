@@ -127,6 +127,8 @@ class PhotoScannerService {
                     assetId: asset.localIdentifier
                 )
 
+                print("[PhotoScanner] Asset \(asset.localIdentifier.prefix(8))... → isPet=\(recognitionResult.isPet), type=\(recognitionResult.animalType ?? "nil"), confidence=\(recognitionResult.confidence)")
+
                 // Mark as processed regardless of result
                 processedStore.markAsProcessed(assetId: asset.localIdentifier)
 

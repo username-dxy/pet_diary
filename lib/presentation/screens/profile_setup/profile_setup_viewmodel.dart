@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import '../../../config/api_config.dart';
 import '../../../data/models/pet.dart';
 import '../../../data/repositories/pet_repository.dart';
 import '../../../domain/services/photo_storage_service.dart';
@@ -187,7 +188,11 @@ class ProfileSetupViewModel extends ChangeNotifier {
       await _petRepository.savePet(pet);
       debugPrint('[ProfileSetup] Profile 已保存到本地');
 
-      // 4. 异步同步到服务端（不阻塞用户）
+      // 4. 设置 API token（开发环境使用 petId 作为 token）
+      await ApiConfig.setToken(pet.id);
+      debugPrint('[ProfileSetup] Token 已设置: ${pet.id}');
+
+      // 5. 异步同步到服务端（不阻塞用户）
       _syncToServer(pet);
 
       return true;

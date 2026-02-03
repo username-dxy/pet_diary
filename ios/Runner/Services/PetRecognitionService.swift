@@ -95,6 +95,7 @@ class PetRecognitionService {
                 guard let results = request.results as? [VNRecognizedObjectObservation],
                       !results.isEmpty else {
                     // No animals detected
+                    print("[PetRecognition] No animals detected for asset \(assetId.prefix(8))...")
                     resumeOnce(.success(PetRecognitionResult(
                         assetId: assetId,
                         isPet: false,
@@ -111,6 +112,7 @@ class PetRecognitionService {
                 for observation in results {
                     for label in observation.labels {
                         let identifier = label.identifier
+                        print("[PetRecognition] Asset \(assetId.prefix(8))... label=\(identifier) confidence=\(label.confidence)")
                         // VNRecognizeAnimalsRequest returns "Cat" or "Dog"
                         if identifier == "Cat" || identifier == "Dog" {
                             let confidence = label.confidence

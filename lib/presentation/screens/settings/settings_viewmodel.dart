@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:pet_diary/data/models/scan_result.dart';
 import 'package:pet_diary/data/repositories/background_scan_settings_repository.dart';
+import 'package:pet_diary/data/repositories/pet_repository.dart';
 import 'package:pet_diary/domain/services/background_scan_service.dart';
+import 'package:pet_diary/domain/services/scan_upload_service.dart';
 
 /// ViewModel for the Settings screen
 class SettingsViewModel extends ChangeNotifier {
   final BackgroundScanService _scanService = BackgroundScanService();
+  final ScanUploadService _uploadService = ScanUploadService();
+  final PetRepository _petRepository = PetRepository();
   final BackgroundScanSettingsRepository _settingsRepository =
       BackgroundScanSettingsRepository();
 
@@ -166,6 +170,24 @@ class SettingsViewModel extends ChangeNotifier {
       await _settingsRepository.incrementScanCount();
 
       debugPrint('[Settings] Manual scan found ${_lastScanResults.length} pets');
+
+      // 扫描完成后自动压缩上传
+      if (_lastScanResults.isNotEmpty) {
+        final pet = await _petRepository.getCurrentPet();
+        if (pet != null) {
+          debugPrint('[Settings] Starting upload for ${_lastScanResults.length} photos...');
+          final byDay = _uploadService.aggregateByDay(_lastScanResults);
+          for (final entry in byDay.entries) {
+            await _uploadService.compressAndUpload(
+              petId: pet.id,
+              date: entry.key,
+              results: entry.value,
+            );
+          }
+          debugPrint('[Settings] Upload complete');
+        }
+      }
+
       return true;
     } catch (e) {
       _errorMessage = '扫描失败：$e';

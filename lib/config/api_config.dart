@@ -43,7 +43,7 @@ class ApiConfig {
     // 真机需要使用电脑的局域网 IP
     return const String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://localhost:3000',
+      defaultValue: 'http://192.168.3.129:3000',
     );
   }
 
