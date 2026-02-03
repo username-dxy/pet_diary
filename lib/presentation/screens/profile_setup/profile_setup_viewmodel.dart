@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 import '../../../config/api_config.dart';
 import '../../../data/models/pet.dart';
 import '../../../data/repositories/pet_repository.dart';
+import '../../../domain/services/device_id_service.dart';
 import '../../../domain/services/photo_storage_service.dart';
 import '../../../domain/services/profile_service.dart';
 
@@ -170,10 +170,10 @@ class ProfileSetupViewModel extends ChangeNotifier {
       final photoPath = await _photoService.savePhoto(_profilePhoto!.path);
       debugPrint('[ProfileSetup] 照片已保存: $photoPath');
 
-      // 2. 创建 Pet 对象
-      final uuid = const Uuid();
+      // 2. 创建 Pet 对象（使用设备稳定 ID）
+      final deviceId = await DeviceIdService.getId();
       final pet = Pet(
-        id: uuid.v4(),
+        id: deviceId,
         name: _name,
         species: _species,
         profilePhotoPath: photoPath,

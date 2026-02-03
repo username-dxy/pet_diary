@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:pet_diary/config/api_config.dart';
 import 'package:pet_diary/data/models/pet.dart';
 import 'package:pet_diary/data/models/emotion_record.dart';
 import 'package:pet_diary/data/models/scan_result.dart';
@@ -63,12 +62,6 @@ class HomeViewModel extends ChangeNotifier {
     try {
       // 加载当前宠物
       _currentPet = await _petRepository.getCurrentPet();
-
-      // 确保 token 存在（用 petId 作为 dev token）
-      if (_currentPet != null && !(await ApiConfig.hasToken)) {
-        await ApiConfig.setToken(_currentPet!.id);
-        debugPrint('[Home] Token 已恢复: ${_currentPet!.id}');
-      }
 
       // 加载今日贴纸
       _todaySticker = await _emotionRepository.getTodayRecord();
