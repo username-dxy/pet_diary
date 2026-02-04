@@ -83,38 +83,53 @@ class ApiClient {
     required T Function(dynamic json) fromJson,
   }) async {
     final uri = _buildUri(path);
-    _log('UPLOAD $uri');
+    _log('🌐 UPLOAD $uri');
 
     try {
       final request = http.MultipartRequest('POST', uri);
-      request.headers.addAll(await _headers());
+      final headers = await _headers();
+      request.headers.addAll(headers);
 
       // 添加文件
+      int fileCount = 0;
       for (final entry in files.entries) {
         for (final filePath in entry.value) {
           request.files.add(
             await http.MultipartFile.fromPath(entry.key, filePath),
           );
+          fileCount++;
         }
       }
+      _log('   文件数: $fileCount');
 
       // 添加表单字段
       if (fields != null) {
         request.fields.addAll(fields);
+        _log('   字段数: ${fields.length}');
+        if (fields.containsKey('petId_0')) {
+          _log('   petId: ${fields['petId_0']}');
+        }
+        if (fields.containsKey('date_0')) {
+          _log('   date: ${fields['date_0']}');
+        }
       }
 
+      _log('   超时: ${ApiConfig.uploadTimeoutSeconds}s');
       final streamedResponse = await request
           .send()
           .timeout(Duration(seconds: ApiConfig.uploadTimeoutSeconds));
 
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response, fromJson);
-    } on SocketException {
+    } on SocketException catch (e) {
+      _log('❌ 网络连接失败: $e');
       return ApiResponse.failure('网络连接失败', -1);
     } catch (e) {
       if (e is TimeoutException || e.toString().contains('TimeoutException')) {
+        _log('⏱️ 上传超时');
         return ApiResponse.failure('上传超时', -2);
       }
+      _log('❌ 上传异常: $e');
       return ApiResponse.failure('上传异常: $e', -1);
     }
   }
@@ -144,16 +159,34 @@ class ApiClient {
     http.Response response,
     T Function(dynamic json) fromJson,
   ) {
-    _log('Response [${response.statusCode}]: ${response.body}');
+    final bodyPreview = response.body.length > 200
+        ? '${response.body.substring(0, 200)}...'
+        : response.body;
+    _log('📥 Response [${response.statusCode}]');
+    _log('   Body: $bodyPreview');
 
     if (response.statusCode == 401) {
+      _log('❌ 401 未授权');
       return ApiResponse.failure('未授权，请重新登录', 401);
+    }
+
+    if (response.statusCode >= 400) {
+      _log('❌ HTTP ${response.statusCode} 错误');
     }
 
     try {
       final jsonData = json.decode(response.body) as Map<String, dynamic>;
-      return ApiResponse.fromJson(jsonData, fromJson);
+      final apiResponse = ApiResponse.fromJson(jsonData, fromJson);
+
+      if (apiResponse.success) {
+        _log('✅ API 调用成功');
+      } else {
+        _log('❌ API 返回失败: ${apiResponse.errorMessage}');
+      }
+
+      return apiResponse;
     } catch (e) {
+      _log('❌ JSON 解析失败: $e');
       return ApiResponse.failure('数据解析失败: $e', -3);
     }
   }

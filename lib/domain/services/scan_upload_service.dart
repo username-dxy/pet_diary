@@ -45,11 +45,17 @@ class ScanUploadService {
     for (var i = 0; i < results.length; i++) {
       final result = results[i];
       try {
+        debugPrint('🔧 [ScanUpload] 处理 ${i + 1}/${results.length}: ${result.assetId}');
+
         // Compress
+        debugPrint('   🗜️  压缩中...');
         final compressedPath =
             await _compressionService.compressPhoto(result.tempFilePath);
         if (compressedPath != result.tempFilePath) {
           tempFiles.add(compressedPath);
+          debugPrint('   ✅ 已压缩');
+        } else {
+          debugPrint('   ℹ️  无需压缩');
         }
 
         // Build upload item
@@ -63,16 +69,20 @@ class ScanUploadService {
         );
 
         // Upload single photo
+        debugPrint('   📤 上传中...');
         final response = await _imageApiService.uploadImages([item]);
         if (response.success) {
           uploaded++;
-          debugPrint('[ScanUpload] Uploaded ${result.assetId} for $date');
+          debugPrint('   ✅ 上传成功: ${result.assetId} ($date)');
+          if (response.data.duplicates > 0) {
+            debugPrint('   ⚠️  检测到重复');
+          }
         } else {
           debugPrint(
-              '[ScanUpload] Upload failed for ${result.assetId}: ${response.errorMessage}');
+              '   ❌ 上传失败: ${result.assetId} - ${response.errorMessage}');
         }
       } catch (e) {
-        debugPrint('[ScanUpload] Error processing ${result.assetId}: $e');
+        debugPrint('   ❌ 处理错误: ${result.assetId} - $e');
       }
 
       onProgress?.call(i + 1, results.length);
