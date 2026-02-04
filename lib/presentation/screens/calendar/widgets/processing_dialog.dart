@@ -47,20 +47,6 @@ class ProcessingDialog extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 显示照片预览
-              if (viewModel.selectedImage != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    viewModel.selectedImage!,
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
               // 显示识别结果
               if (viewModel.recognizedEmotion != null) ...[
                 Text(
@@ -72,6 +58,32 @@ class ProcessingDialog extends StatelessWidget {
                   viewModel.recognizedEmotion!,
                   size: 60,
                 ),
+                if (viewModel.generatedStickerPath != null) ...[
+                  const SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: viewModel.usedFallback
+                        ? Image.file(
+                            File(viewModel.generatedStickerPath!),
+                            width: 150,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          )
+                        : (viewModel.generatedStickerPath!.startsWith('http')
+                            ? Image.network(
+                                viewModel.generatedStickerPath!,
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(viewModel.generatedStickerPath!),
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              )),
+                  ),
+                ],
                 const SizedBox(height: 20),
 
                 Row(

@@ -5,9 +5,10 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
+const { generateStickerPipeline } = require('./services/ai');
 
-// 加载环境变量（如果存在 .env 文件）
-require('dotenv').config();
+// 加载环境变量（固定读取 mock-server/.env，避免启动目录不同导致失效）
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -81,8 +82,20 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB限制
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/heic'];
-    if (allowedTypes.includes(file.mimetype)) {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/heic',
+      'image/heif',
+      'image/heic-sequence',
+      'image/heif-sequence',
+      // 某些客户端不会正确设置 Content-Type
+      'application/octet-stream'
+    ];
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+    if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
       cb(null, true);
     } else {
       cb(new Error('只支持 JPEG/PNG/HEIC 格式的图片'));
@@ -193,9 +206,35 @@ app.get('/', (req, res) => {
         'GET /api/chongyu/diary/calendar': '查询日历情绪',
         'GET /api/chongyu/diary/7days': '查询前7天情绪',
         'GET /api/chongyu/pet/photos': '查询宠物照片',
+      },
+      ai: {
+        'POST /api/ai/sticker/generate': '生成贴纸（AI 管线）'
       }
     }
   });
+});
+
+// ==================== AI Pipeline ====================
+
+// 生成贴纸（Emotion → Prompt → Sticker）
+app.post('/api/ai/sticker/generate', upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json(errorResponse('未接收到图片文件', 400));
+  }
+
+  try {
+    const host = req.get('host') || `localhost:${PORT}`;
+    const protocol = req.protocol || 'http';
+    const result = await generateStickerPipeline({
+      imagePath: req.file.path,
+      host,
+      protocol
+    });
+    res.json(successResponse(result));
+  } catch (error) {
+    console.error('❌ AI 贴纸生成失败:', error);
+    res.status(500).json(errorResponse('AI 贴纸生成失败', 500));
+  }
 });
 
 // ==================== /api/chongyu 路由 ====================
@@ -758,6 +797,7 @@ app.listen(PORT, HOST, () => {
   console.log('   [chongyu] GET  /api/chongyu/diary/calendar - 日历情绪');
   console.log('   [chongyu] GET  /api/chongyu/diary/7days - 前7天情绪');
   console.log('   [chongyu] GET  /api/chongyu/pet/photos - 宠物照片');
+  console.log('   [ai] POST /api/ai/sticker/generate - 生成贴纸');
   console.log('');
   console.log('⚙️  配置:');
   console.log(`   数据库文件: ${DB_FILE_NAME}`);

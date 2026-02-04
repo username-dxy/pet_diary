@@ -1,9 +1,15 @@
 import 'dart:io';
 import 'package:pet_diary/data/models/pet_features.dart';
 import 'package:pet_diary/domain/services/asset_manager.dart';
+import 'package:pet_diary/core/network/api_client.dart';
+import 'package:pet_diary/core/network/api_response.dart';
 
 /// 贴纸生成服务（模型C）
 class StickerGenerationService {
+  final ApiClient _client;
+
+  StickerGenerationService({ApiClient? client})
+      : _client = client ?? ApiClient();
   
   /// 生成贴纸
   /// TODO: 后期接入真实API
@@ -16,6 +22,22 @@ class StickerGenerationService {
 
     // Mock: 返回原图路径（后期替换为AI生成的贴纸URL）
     return photo.path;
+  }
+
+  /// 通过服务端 AI 管线生成贴纸（情绪+特征+贴纸）
+  Future<ApiResponse<AiStickerResult>> generateStickerFromServer({
+    required File photo,
+  }) {
+    return _client.uploadFiles<AiStickerResult>(
+      '/api/ai/sticker/generate',
+      files: {'image': [photo.path]},
+      fromJson: (json) {
+        if (json is Map<String, dynamic>) {
+          return AiStickerResult.fromJson(json);
+        }
+        throw Exception('Invalid AI response');
+      },
+    );
   }
 
   /// 构建Prompt（预留接口）
@@ -45,6 +67,62 @@ Focus on the head and upper body.
         return 'sleepy eyes, yawning pose, relaxed and cozy';
       case Emotion.curious:
         return 'wide open eyes, head tilted, ears perked up, attentive';
+    }
+  }
+}
+
+class AiStickerResult {
+  final Emotion emotion;
+  final double confidence;
+  final PetFeatures features;
+  final String stickerUrl;
+  final String? prompt;
+
+  const AiStickerResult({
+    required this.emotion,
+    required this.confidence,
+    required this.features,
+    required this.stickerUrl,
+    this.prompt,
+  });
+
+  factory AiStickerResult.fromJson(Map<String, dynamic> json) {
+    final analysis = json['analysis'] as Map<String, dynamic>? ?? const {};
+    final petFeatures = json['pet_features'] as Map<String, dynamic>? ?? const {};
+    final sticker = json['sticker'] as Map<String, dynamic>? ?? const {};
+
+    return AiStickerResult(
+      emotion: _parseEmotion(analysis['emotion'] as String?),
+      confidence: (analysis['confidence'] as num?)?.toDouble() ?? 0.0,
+      features: PetFeatures(
+        species: (petFeatures['species'] as String?) ?? 'other',
+        breed: (petFeatures['breed'] as String?) ?? '宠物',
+        color: (petFeatures['primary_color'] as String?) ??
+            (petFeatures['color'] as String?) ??
+            '未知',
+        pose: (petFeatures['pose'] as String?) ?? 'unknown',
+      ),
+      stickerUrl: (sticker['imageUrl'] as String?) ?? '',
+      prompt: sticker['prompt'] as String?,
+    );
+  }
+
+  static Emotion _parseEmotion(String? value) {
+    switch ((value ?? '').toLowerCase()) {
+      case 'happy':
+        return Emotion.happy;
+      case 'calm':
+        return Emotion.calm;
+      case 'sad':
+        return Emotion.sad;
+      case 'angry':
+        return Emotion.angry;
+      case 'sleepy':
+        return Emotion.sleepy;
+      case 'curious':
+        return Emotion.curious;
+      default:
+        return Emotion.calm;
     }
   }
 }

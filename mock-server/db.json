@@ -25,9 +25,66 @@
       "profilePhotoPath": "",
       "createdAt": "2024-06-10T08:00:00.000Z",
       "updatedAt": "2026-01-28T09:00:00.000Z"
+    },
+    {
+      "id": "51b1c795-1b1e-44e3-9a49-40c0c4824c75",
+      "name": "Ty",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/F27BD6B4-15D3-4E51-A806-D7C0ACD79480/Documents/diary_photos/diary_1770089224710.jpg",
+      "birthday": "2025-01-19T00:00:00.000",
+      "ownerNickname": "铲屎官",
+      "gender": "unknown",
+      "personality": "quiet",
+      "createdAt": "2026-02-03T03:27:04.833Z",
+      "updatedAt": "2026-02-03T03:27:04.840Z"
+    },
+    {
+      "id": "dde10bd0-0234-4eca-819c-973376c2d330",
+      "name": "dd",
+      "species": "cat",
+      "breed": null,
+      "profilePhotoPath": "/var/mobile/Containers/Data/Application/D9A2762D-59DC-491A-9A5C-F926DA2FE40D/Documents/diary_photos/diary_1770089998085.jpg",
+      "birthday": "2025-01-05T00:00:00.000",
+      "ownerNickname": "铲屎官",
+      "gender": "unknown",
+      "personality": "independent",
+      "createdAt": "2026-02-03T03:39:58.605Z",
+      "updatedAt": "2026-02-03T03:39:58.606Z"
     }
   ],
-  "photos": [],
+  "photos": [
+    {
+      "id": "1500f6e6-8b78-43e9-af33-cd024a330399",
+      "url": "http://192.168.3.129:3000/uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
+      "localPath": "uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
+      "size": 63568,
+      "mimeType": "application/octet-stream",
+      "time": "1770196174000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.223Z"
+    },
+    {
+      "id": "f484bd99-72ab-4e44-b9e1-89354af71478",
+      "url": "http://192.168.3.129:3000/uploads/photos/f6e3e0b8-29e2-4b72-83a2-f27d3c7f2b73.jpg",
+      "localPath": "uploads/photos/f6e3e0b8-29e2-4b72-83a2-f27d3c7f2b73.jpg",
+      "size": 40710,
+      "mimeType": "application/octet-stream",
+      "time": "1770196108000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.591Z"
+    },
+    {
+      "id": "ebff8882-3d69-43b6-8b22-4012d5d8a29b",
+      "url": "http://192.168.3.129:3000/uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg",
+      "localPath": "uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg",
+      "size": 59755,
+      "mimeType": "application/octet-stream",
+      "time": "1770196067000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.659Z"
+    }
+  ],
   "diaries": [
     {
       "id": "test_diary_001",
@@ -37,7 +94,10 @@
       "content": "今天测试小猫很开心，在阳光下打滚。阳光透过窗户洒在地板上，小猫咪在光斑里翻来覆去，肚皮朝上，四爪乱蹬，看起来特别满足。",
       "imagePath": "https://placekitten.com/400/300",
       "emotion": 1,
-      "imageList": ["https://placekitten.com/400/300", "https://placekitten.com/401/301"],
+      "imageList": [
+        "https://placekitten.com/400/300",
+        "https://placekitten.com/401/301"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-26T10:00:00.000Z",
       "syncedAt": "2026-01-26T12:42:22.637Z"
@@ -50,7 +110,9 @@
       "content": "今天小猫一直在沙发上睡觉，偶尔翻个身，看起来很平静。下午阳光正好，它蜷成一团，呼噜呼噜的声音特别治愈。",
       "imagePath": "https://placekitten.com/402/302",
       "emotion": 2,
-      "imageList": ["https://placekitten.com/402/302"],
+      "imageList": [
+        "https://placekitten.com/402/302"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-27T09:30:00.000Z",
       "syncedAt": "2026-01-27T10:00:00.000Z"
@@ -63,7 +125,9 @@
       "content": "今天带小猫去看医生，打了疫苗，它很不开心，一路都在哼唧。回家后躲在角落里不理人，看着让人心疼。",
       "imagePath": "https://placekitten.com/403/303",
       "emotion": 3,
-      "imageList": ["https://placekitten.com/403/303"],
+      "imageList": [
+        "https://placekitten.com/403/303"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-28T14:00:00.000Z",
       "syncedAt": "2026-01-28T15:00:00.000Z"
@@ -76,7 +140,9 @@
       "content": "今天早上邻居装修，小猫被吵醒后非常生气，炸毛了好一会儿。后来躲到衣柜里不肯出来，直到中午才慢慢平静下来。",
       "imagePath": "https://placekitten.com/404/304",
       "emotion": 4,
-      "imageList": ["https://placekitten.com/404/304"],
+      "imageList": [
+        "https://placekitten.com/404/304"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-29T08:00:00.000Z",
       "syncedAt": "2026-01-29T09:00:00.000Z"
@@ -89,7 +155,9 @@
       "content": "今天下雨，小猫特别嗜睡，从早到晚都在睡觉。换了三个地方睡，沙发、床上、猫窝都轮了一遍。",
       "imagePath": "https://placekitten.com/405/305",
       "emotion": 5,
-      "imageList": ["https://placekitten.com/405/305"],
+      "imageList": [
+        "https://placekitten.com/405/305"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-30T11:00:00.000Z",
       "syncedAt": "2026-01-30T12:00:00.000Z"
@@ -102,7 +170,10 @@
       "content": "今天给小猫买了一个新的逗猫棒，它非常好奇，围着研究了好久。先是用爪子小心翼翼地碰了碰，然后就开始疯狂扑咬。",
       "imagePath": "https://placekitten.com/406/306",
       "emotion": 6,
-      "imageList": ["https://placekitten.com/406/306", "https://placekitten.com/407/307"],
+      "imageList": [
+        "https://placekitten.com/406/306",
+        "https://placekitten.com/407/307"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-31T16:00:00.000Z",
       "syncedAt": "2026-01-31T17:00:00.000Z"
@@ -115,7 +186,9 @@
       "content": "今天带小白去公园散步，它开心得不得了，一路上摇着尾巴到处嗅。遇到了其他狗狗，友好地互相打了招呼。",
       "imagePath": "https://placedog.net/400/300",
       "emotion": 1,
-      "imageList": ["https://placedog.net/400/300"],
+      "imageList": [
+        "https://placedog.net/400/300"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-26T15:00:00.000Z",
       "syncedAt": "2026-01-26T16:00:00.000Z"
@@ -128,7 +201,9 @@
       "content": "今天在家办公，小白安静地趴在脚边陪我。偶尔抬头看看我，眼神里满是信任和依赖，真是最好的陪伴。",
       "imagePath": "https://placedog.net/401/301",
       "emotion": 2,
-      "imageList": ["https://placedog.net/401/301"],
+      "imageList": [
+        "https://placedog.net/401/301"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-28T10:00:00.000Z",
       "syncedAt": "2026-01-28T11:00:00.000Z"
@@ -141,12 +216,65 @@
       "content": "今天给小白洗澡，它虽然不太情愿但还是乖乖配合了。洗完后甩了一身水，然后在客厅疯狂打滚烘干自己。",
       "imagePath": "https://placedog.net/402/302",
       "emotion": 4,
-      "imageList": ["https://placedog.net/402/302"],
+      "imageList": [
+        "https://placedog.net/402/302"
+      ],
       "isLocked": false,
       "createdAt": "2026-01-30T17:00:00.000Z",
       "syncedAt": "2026-01-30T18:00:00.000Z"
+    },
+    {
+      "id": "a50f4515-c282-487a-8f10-856831e85f28",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-04",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
+        "http://192.168.3.129:3000/uploads/photos/f6e3e0b8-29e2-4b72-83a2-f27d3c7f2b73.jpg",
+        "http://192.168.3.129:3000/uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-04T09:10:21.225Z",
+      "syncedAt": "2026-02-04T09:10:21.225Z"
     }
   ],
-  "pet_photos": [],
+  "pet_photos": [
+    {
+      "id": "1500f6e6-8b78-43e9-af33-cd024a330399",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-04",
+      "assetId": "20F38136-C236-4C8F-A978-7B4117E02B52/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
+      "size": 63568,
+      "time": "1770196174000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.223Z"
+    },
+    {
+      "id": "f484bd99-72ab-4e44-b9e1-89354af71478",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-04",
+      "assetId": "E66D1939-B16E-4FD0-8F8E-6F1FAB113519/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/f6e3e0b8-29e2-4b72-83a2-f27d3c7f2b73.jpg",
+      "size": 40710,
+      "time": "1770196108000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.591Z"
+    },
+    {
+      "id": "ebff8882-3d69-43b6-8b22-4012d5d8a29b",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-04",
+      "assetId": "268B9B78-4DDA-48F6-BF7C-B7553B967F46/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg",
+      "size": 59755,
+      "time": "1770196067000",
+      "location": null,
+      "uploadedAt": "2026-02-04T09:10:21.659Z"
+    }
+  ],
   "users": []
 }

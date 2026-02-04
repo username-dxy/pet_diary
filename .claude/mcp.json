@@ -37,7 +37,7 @@
         "@modelcontextprotocol/server-figma"
       ],
       "env": {
-        "FIGMA_PERSONAL_ACCESS_TOKEN": ""
+        "FIGMA_PERSONAL_ACCESS_TOKEN": "figd_AftxcEu1xepkaqlHHc5hYCHY_aIJcNUsLE3kyCN2"
       },
       "description": "Figma 设计文件访问（导出图像、读取设计规范）"
     }

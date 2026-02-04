@@ -28,6 +28,7 @@ class CalendarViewModel extends ChangeNotifier {
   PetFeatures? _extractedFeatures;
   String? _generatedStickerPath;
   bool _isProcessing = false;
+  bool _usedFallback = false;
   
   // 权限状态
   String? _permissionError;
@@ -40,6 +41,8 @@ class CalendarViewModel extends ChangeNotifier {
   double get progress => _progress;
   String get currentStep => _currentStep;
   Emotion? get recognizedEmotion => _recognizedEmotion;
+  String? get generatedStickerPath => _generatedStickerPath;
+  bool get usedFallback => _usedFallback;
   bool get isProcessing => _isProcessing;
   bool get isComplete => _progress >= 1.0 && !_isProcessing;
   String? get permissionError => _permissionError;
@@ -114,6 +117,7 @@ class CalendarViewModel extends ChangeNotifier {
         _extractedFeatures = null;
         _generatedStickerPath = null;
         _isProcessing = false;
+        _usedFallback = false;
         
         notifyListeners();
         
@@ -134,40 +138,65 @@ class CalendarViewModel extends ChangeNotifier {
 
     _isProcessing = true;
     _progress = 0.0;
-    _currentStep = '正在处理...';
+    _currentStep = '① 识别情绪并生成贴纸...';
     notifyListeners();
 
     try {
-      // 模拟短暂处理时间
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // 随机选择一个情绪（兜底方案）
-      _recognizedEmotion = Emotion.values[
-        DateTime.now().millisecondsSinceEpoch % Emotion.values.length
-      ];
-      
-      // 使用默认特征
-      _extractedFeatures = const PetFeatures(
-        species: 'cat',
-        breed: '宠物',
-        color: '可爱',
-        pose: 'sitting',
+      _progress = 0.3;
+      notifyListeners();
+
+      final response = await _stickerService.generateStickerFromServer(
+        photo: _selectedImage!,
       );
-      
-      // 使用原图作为"贴纸"
-      _generatedStickerPath = _selectedImage!.path;
-      
+
+      if (!response.success || response.data == null) {
+        throw Exception(response.errorMessage);
+      }
+
+      final result = response.data!;
+      _recognizedEmotion = result.emotion;
+      _extractedFeatures = result.features;
+      _generatedStickerPath =
+          result.stickerUrl.isNotEmpty ? result.stickerUrl : _selectedImage!.path;
+      _usedFallback = false;
+
       _currentStep = '完成！';
       _progress = 1.0;
-      
-      debugPrint('兜底流程完成: 情绪=${_recognizedEmotion?.name}');
+
+      debugPrint('AI流程完成: 情绪=${_recognizedEmotion?.name}');
     } catch (e) {
-      _currentStep = '处理失败：$e';
-      debugPrint('处理照片出错: $e');
+      debugPrint('AI流程失败，使用兜底方案: $e');
+      await _fallbackProcess();
     } finally {
       _isProcessing = false;
       notifyListeners();
     }
+  }
+
+  Future<void> _fallbackProcess() async {
+    _currentStep = '正在处理...';
+    notifyListeners();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    _usedFallback = true;
+
+    _recognizedEmotion = Emotion.values[
+      DateTime.now().millisecondsSinceEpoch % Emotion.values.length
+    ];
+
+    _extractedFeatures = const PetFeatures(
+      species: 'cat',
+      breed: '宠物',
+      color: '可爱',
+      pose: 'sitting',
+    );
+
+    _generatedStickerPath = _selectedImage!.path;
+
+    _currentStep = '完成！';
+    _progress = 1.0;
+
+    debugPrint('兜底流程完成: 情绪=${_recognizedEmotion?.name}');
   }
 
   /// 处理照片（完整的三模型流程）
