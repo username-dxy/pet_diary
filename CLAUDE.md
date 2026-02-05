@@ -182,8 +182,20 @@ Key endpoints:
 - `POST /api/chongyu/image/list/upload` — batch upload with `petId_N`, `date_N`, `assetId_N` fields; returns `{ uploaded, duplicates }`
 - `GET /api/chongyu/pet/photos?petId=&date=` — query pet photos by petId and optional date
 - `GET /api/chongyu/pet/detail?petId=&diaryId=` — diary detail with dynamically built `imageList`
+- `POST /api/chongyu/ai/sticker/generate` — AI emotion analysis + sticker generation (requires GEMINI_API_KEY in `.env`)
 
 Test with: `curl -H "token: test123" http://localhost:3000/api/chongyu/pet/list`
+
+### Mock Server Testing
+
+**Test scripts** in `mock-server/tests/`:
+- `test_gemini_simple.js` — verify Gemini API key and basic connection
+- `test_gemini_vision.js` — test pet photo recognition and emotion analysis
+- `test_gemini_connection.js` — full test suite
+
+Run tests: `cd mock-server && node tests/test_gemini_simple.js`
+
+**Server setup**: Requires `.env` file with `GEMINI_API_KEY` for AI features. Copy from `.env.example` if needed.
 
 ## File Organization
 
@@ -197,6 +209,42 @@ Custom skills in `.claude/skills/`:
 - **`mvvm-checker`** — trigger with "check-mvvm [component]" to validate MVVM compliance
 - **`new-feature`** — trigger with "new-feature [name]" to scaffold a complete feature module (model, repository, viewmodel, screen, widgets)
 
+## Debugging
+
+### Client Logging
+
+All key flows include structured debug logs with emoji prefixes for easy filtering:
+- `🔧 [HomeLoad]` — API configuration check (token, base URL)
+- `📷 [HomeScan]` — photo scan flow (trigger → results → aggregation)
+- `📤 [HomeScan]` — upload progress (per-day batching)
+- `🔧 [ScanUpload]` — individual photo compression/upload
+- `🌐 [ApiClient]` — HTTP requests with fields/files count
+- `📥 [ApiClient]` — HTTP responses with status
+
+**Filter logs**: `flutter run | grep "HomeScan"` or `flutter run | grep "❌"` for errors.
+
+**Full guide**: See `CLIENT_DEBUG_LOG_GUIDE.md` for detailed debugging instructions.
+
+### Server Testing
+
+**Connection test**: `mock-server/CONNECTION_TEST_RESULT.md` — verify all API endpoints, token auth, database state.
+
+**Gemini API test**: `mock-server/GEMINI_API_TEST_GUIDE.md` — test AI vision/emotion features.
+
+**Quick diagnostics**:
+```bash
+# Server status
+curl http://localhost:3000/
+
+# Database check
+cat mock-server/db.json | jq '.pet_photos'
+
+# Test upload
+curl -H "token: test123" -F "image=@test.jpg" \
+  -F "petId_0=pet1" -F "date_0=2026-02-04" \
+  http://localhost:3000/api/chongyu/image/list/upload
+```
+
 ## Common Pitfalls
 
 - Always `await` SharedPreferences methods to avoid data loss
@@ -205,3 +253,4 @@ Custom skills in `.claude/skills/`:
 - New routes must be registered in `main.dart`'s `routes` map
 - Check `context.mounted` before using context after async operations
 - The `widget_test.dart` placeholder test is pre-existing broken — not a regression signal
+- iOS scan results use `_currentPet!.id` not `result.petId` for logging (result.petId may differ from current pet)
