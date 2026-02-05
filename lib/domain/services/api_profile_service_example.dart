@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import '../../data/models/pet.dart';
+import '../../config/api_config.dart';
 import 'profile_service.dart';
 
 class ApiProfileServiceExample implements ProfileService {
@@ -25,13 +26,15 @@ class ApiProfileServiceExample implements ProfileService {
   @override
   Future<ProfileSyncResult> syncProfile(Pet pet) async {
     debugPrint('[API] 同步宠物档案到服务器...');
-    debugPrint('[API] URL: $baseUrl/api/v1/pets/profile');
+    debugPrint('[API] URL: $baseUrl/api/chongyu/pets/profile');
 
     try {
+      final headers = await _authHeaders();
+      headers['Content-Type'] = 'application/json';
       final response = await http
           .post(
-            Uri.parse('$baseUrl/api/v1/pets/profile'),
-            headers: {'Content-Type': 'application/json'},
+            Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+            headers: headers,
             body: jsonEncode(pet.toJson()),
           )
           .timeout(const Duration(seconds: 10));
@@ -81,7 +84,7 @@ class ApiProfileServiceExample implements ProfileService {
   Future<String> uploadProfilePhoto(File photo) async {
     debugPrint('[API] 上传头像照片...');
     debugPrint('[API] 文件路径: ${photo.path}');
-    debugPrint('[API] URL: $baseUrl/api/v1/upload/profile-photo');
+    debugPrint('[API] URL: $baseUrl/api/chongyu/upload/profile-photo');
 
     try {
       // 检查文件是否存在
@@ -94,8 +97,11 @@ class ApiProfileServiceExample implements ProfileService {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/v1/upload/profile-photo'),
+        Uri.parse('$baseUrl/api/chongyu/upload/profile-photo'),
       );
+
+      final headers = await _authHeaders();
+      request.headers.addAll(headers);
 
       request.files.add(
         await http.MultipartFile.fromPath(
@@ -134,12 +140,14 @@ class ApiProfileServiceExample implements ProfileService {
   Future<Pet?> fetchProfile(String petId) async {
     debugPrint('[API] 获取宠物档案...');
     debugPrint('[API] Pet ID: $petId');
-    debugPrint('[API] URL: $baseUrl/api/v1/pets/$petId/profile');
+    debugPrint('[API] URL: $baseUrl/api/chongyu/pets/$petId/profile');
 
     try {
+      final headers = await _authHeaders();
       final response = await http
           .get(
-            Uri.parse('$baseUrl/api/v1/pets/$petId/profile'),
+            Uri.parse('$baseUrl/api/chongyu/pets/$petId/profile'),
+            headers: headers,
           )
           .timeout(const Duration(seconds: 10));
 
@@ -189,6 +197,15 @@ class ApiProfileServiceExample implements ProfileService {
       debugPrint('[API]    3. iOS Info.plist是否允许HTTP');
       return false;
     }
+  }
+
+  Future<Map<String, String>> _authHeaders() async {
+    final headers = <String, String>{};
+    final token = await ApiConfig.getToken();
+    if (token != null && token.isNotEmpty) {
+      headers['token'] = token;
+    }
+    return headers;
   }
 }
 

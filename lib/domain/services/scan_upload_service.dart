@@ -74,7 +74,7 @@ class ScanUploadService {
         if (response.success) {
           uploaded++;
           debugPrint('   ✅ 上传成功: ${result.assetId} ($date)');
-          if (response.data.duplicates > 0) {
+          if ((response.data?.duplicates ?? 0) > 0) {
             debugPrint('   ⚠️  检测到重复');
           }
         } else {

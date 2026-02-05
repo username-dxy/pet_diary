@@ -44,7 +44,10 @@ Future<void> testApiConnection() async {
     debugPrint('');
     debugPrint('📊 测试2: 获取统计信息...');
     final statsResponse = await http
-        .get(Uri.parse('$baseUrl/api/v1/stats'))
+        .get(
+          Uri.parse('$baseUrl/api/chongyu/stats'),
+          headers: const {'token': 'test-token'},
+        )
         .timeout(const Duration(seconds: 5));
 
     if (statsResponse.statusCode == 200) {
@@ -61,8 +64,11 @@ Future<void> testApiConnection() async {
     debugPrint('📝 测试3: 测试POST请求...');
     final postResponse = await http
         .post(
-          Uri.parse('$baseUrl/api/v1/pets/profile'),
-          headers: {'Content-Type': 'application/json'},
+          Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+          headers: {
+            'Content-Type': 'application/json',
+            'token': 'test-token',
+          },
           body: jsonEncode({
             'id': 'test_flutter_${DateTime.now().millisecondsSinceEpoch}',
             'name': 'Flutter测试猫',

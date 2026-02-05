@@ -133,7 +133,7 @@ class HomeViewModel extends ChangeNotifier {
           try {
             final result = ScanResult.fromMap(event);
             results.add(result);
-            debugPrint('📷 [HomeScan] 扫描到: ${result.assetId} (Pet: ${result.petId})');
+            debugPrint('📷 [HomeScan] 扫描到: ${result.assetId} (Pet: ${_currentPet!.id})');
           } catch (e) {
             debugPrint('❌ [HomeScan] 解析扫描结果失败: $e');
           }

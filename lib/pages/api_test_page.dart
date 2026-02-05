@@ -17,6 +17,7 @@ class ApiTestPage extends StatefulWidget {
 class _ApiTestPageState extends State<ApiTestPage> {
   String _result = '点击按钮开始测试...';
   bool _isLoading = false;
+  static const String _testToken = 'test-token';
 
   final String baseUrl = Platform.isAndroid
       ? 'http://10.0.2.2:3000'
@@ -50,7 +51,10 @@ class _ApiTestPageState extends State<ApiTestPage> {
       // 测试2: 获取统计信息
       buffer.writeln('\n📊 测试2: 获取统计信息');
       final statsResponse = await http
-          .get(Uri.parse('$baseUrl/api/v1/stats'))
+          .get(
+            Uri.parse('$baseUrl/api/chongyu/stats'),
+            headers: const {'token': _testToken},
+          )
           .timeout(const Duration(seconds: 5));
 
       if (statsResponse.statusCode == 200) {
@@ -114,8 +118,11 @@ class _ApiTestPageState extends State<ApiTestPage> {
     try {
       final response = await http
           .post(
-            Uri.parse('$baseUrl/api/v1/pets/profile'),
-            headers: {'Content-Type': 'application/json'},
+            Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+            headers: {
+              'Content-Type': 'application/json',
+              'token': _testToken,
+            },
             body: jsonEncode({
               'id': 'test_ui_${DateTime.now().millisecondsSinceEpoch}',
               'name': 'UI测试猫',
@@ -165,7 +172,10 @@ class _ApiTestPageState extends State<ApiTestPage> {
 
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/api/v1/stats'))
+          .get(
+            Uri.parse('$baseUrl/api/chongyu/stats'),
+            headers: const {'token': _testToken},
+          )
           .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {

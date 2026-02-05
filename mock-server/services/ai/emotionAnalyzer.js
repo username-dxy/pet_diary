@@ -1,10 +1,17 @@
 const fs = require('fs');
 const path = require('path');
+const { GoogleGenAI } = require('@google/genai');
 
-const GEMINI_API_BASE_URL =
-  process.env.GEMINI_API_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta';
+const ARK_API_BASE_URL =
+  process.env.ARK_API_BASE_URL || 'https://ark.cn-beijing.volces.com/api/v3';
+const ARK_VISION_MODEL =
+  process.env.ARK_VISION_MODEL || 'doubao-1-5-vision-pro-32k-250115';
+const ARK_API_KEY = process.env.ARK_API_KEY || '';
+
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-image';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+
+const geminiClient = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
 function inferMimeType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
@@ -47,34 +54,38 @@ function buildPrompt() {
   ].join('\n');
 }
 
-async function analyzeEmotion(imagePath) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Missing GEMINI_API_KEY');
+function extractTextFromInteraction(interaction) {
+  const outputs = interaction?.outputs || [];
+  const last = outputs[outputs.length - 1] || {};
+  if (last.text) return last.text;
+
+  const parts = last.content?.parts || [];
+  const text = parts.map(p => p.text).filter(Boolean).join('\n');
+  if (text) return text;
+
+  return '';
+}
+
+async function callArkVision({ base64Data, mimeType }) {
+  if (!ARK_API_KEY) {
+    return null;
   }
 
-  const imageBuffer = fs.readFileSync(imagePath);
-  const base64Data = imageBuffer.toString('base64');
-  const mimeType = inferMimeType(imagePath);
-
-  const endpoint = `${GEMINI_API_BASE_URL}/models/${GEMINI_MODEL}:generateContent`;
-  const response = await fetch(endpoint, {
+  const dataUrl = `data:${mimeType};base64,${base64Data}`;
+  const response = await fetch(`${ARK_API_BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-goog-api-key': GEMINI_API_KEY
+      Authorization: `Bearer ${ARK_API_KEY}`
     },
     body: JSON.stringify({
-      contents: [
+      model: ARK_VISION_MODEL,
+      messages: [
         {
           role: 'user',
-          parts: [
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data: base64Data
-              }
-            },
-            { text: buildPrompt() }
+          content: [
+            { type: 'image_url', image_url: { url: dataUrl } },
+            { type: 'text', text: buildPrompt() }
           ]
         }
       ]
@@ -83,14 +94,44 @@ async function analyzeEmotion(imagePath) {
 
   const payload = await response.json();
   if (!response.ok) {
-    const errorMessage = payload?.error?.message || 'Gemini request failed';
+    const errorMessage = payload?.error?.message || 'Ark vision request failed';
     throw new Error(errorMessage);
   }
 
-  const parts = payload?.candidates?.[0]?.content?.parts || [];
-  const text = parts.map(p => p.text).filter(Boolean).join('\n');
+  const text = payload?.choices?.[0]?.message?.content || '';
+  return text;
+}
+
+async function callGeminiVision({ base64Data, mimeType }) {
+  if (!geminiClient) {
+    return null;
+  }
+
+  const interaction = await geminiClient.interactions.create({
+    model: GEMINI_MODEL,
+    input: [
+      {
+        inlineData: {
+          mimeType,
+          data: base64Data
+        }
+      },
+      { text: buildPrompt() }
+    ]
+  });
+
+  return extractTextFromInteraction(interaction);
+}
+
+async function analyzeEmotion(imagePath) {
+  const imageBuffer = fs.readFileSync(imagePath);
+  const base64Data = imageBuffer.toString('base64');
+  const mimeType = inferMimeType(imagePath);
+
+  const arkText = await callArkVision({ base64Data, mimeType });
+  const text = arkText || (await callGeminiVision({ base64Data, mimeType }));
   if (!text) {
-    throw new Error('Gemini returned empty content');
+    throw new Error('No vision provider available or returned empty content');
   }
 
   return extractJson(text);

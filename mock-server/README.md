@@ -38,7 +38,7 @@ npm run dev
 #### 同步宠物档案
 
 ```http
-POST /api/v1/pets/profile
+POST /api/chongyu/pets/profile
 Content-Type: application/json
 
 {
@@ -70,7 +70,7 @@ Content-Type: application/json
 #### 获取宠物档案
 
 ```http
-GET /api/v1/pets/{petId}/profile
+GET /api/chongyu/pets/{petId}/profile
 ```
 
 ---
@@ -80,7 +80,7 @@ GET /api/v1/pets/{petId}/profile
 #### 上传头像照片
 
 ```http
-POST /api/v1/upload/profile-photo
+POST /api/chongyu/upload/profile-photo
 Content-Type: multipart/form-data
 
 photo: <file>
@@ -102,7 +102,7 @@ photo: <file>
 #### 上传普通照片
 
 ```http
-POST /api/v1/upload/photo
+POST /api/chongyu/upload/photo
 Content-Type: multipart/form-data
 
 photo: <file>
@@ -115,7 +115,7 @@ photo: <file>
 #### 创建日记
 
 ```http
-POST /api/v1/diaries
+POST /api/chongyu/diaries
 Content-Type: application/json
 
 {
@@ -133,13 +133,13 @@ Content-Type: application/json
 #### 获取日记列表
 
 ```http
-GET /api/v1/diaries?petId=pet_123&limit=30&offset=0
+GET /api/chongyu/diaries?petId=pet_123&limit=30&offset=0
 ```
 
 #### 获取日记详情
 
 ```http
-GET /api/v1/diaries/{diaryId}
+GET /api/chongyu/diaries/{diaryId}
 ```
 
 ---
@@ -147,7 +147,7 @@ GET /api/v1/diaries/{diaryId}
 ### 统计信息
 
 ```http
-GET /api/v1/stats
+GET /api/chongyu/stats
 ```
 
 **响应**:
@@ -199,7 +199,7 @@ class ApiProfileService implements ProfileService {
   Future<ProfileSyncResult> syncProfile(Pet pet) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/v1/pets/profile'),
+        Uri.parse('$baseUrl/api/chongyu/pets/profile'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(pet.toJson()),
       );
@@ -224,7 +224,7 @@ class ApiProfileService implements ProfileService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/v1/upload/profile-photo'),
+        Uri.parse('$baseUrl/api/chongyu/upload/profile-photo'),
       );
 
       request.files.add(
@@ -249,7 +249,7 @@ class ApiProfileService implements ProfileService {
   Future<Pet?> fetchProfile(String petId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/v1/pets/$petId/profile'),
+        Uri.parse('$baseUrl/api/chongyu/pets/$petId/profile'),
       );
 
       if (response.statusCode == 200) {
@@ -347,7 +347,7 @@ rm -rf mock-server/uploads
 cat mock-server/db.json | python -m json.tool
 ```
 
-或访问: http://localhost:3000/api/v1/stats
+或访问: http://localhost:3000/api/chongyu/stats
 
 ---
 

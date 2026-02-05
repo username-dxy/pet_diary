@@ -40,10 +40,11 @@ class ApiConfig {
   static String get _developmentUrl {
     // iOS 模拟器使用 localhost
     // Android 模拟器使用 10.0.2.2
-    // 真机需要使用电脑的局域网 IP（需与 mock-server 的 HOST 一致）
+    // 真机需要使用电脑的局域网 IP（需与 mock-server 的 HOST 一致）192.168.3.129
+    // 热点：172.20.10.6 
     return const String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://192.168.3.129:3000',
+      defaultValue: 'http://172.20.10.6:3000',
     );
   }
 

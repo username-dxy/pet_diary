@@ -1,14 +1,15 @@
+const path = require('path');
+
+// 加载环境变量（固定读取 mock-server/.env，避免启动目录不同导致失效）
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-const path = require('path');
 const { generateStickerPipeline } = require('./services/ai');
-
-// 加载环境变量（固定读取 mock-server/.env，避免启动目录不同导致失效）
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -19,6 +20,16 @@ const DB_FILE_NAME = process.env.DB_FILE || 'db.json';
 const UPLOAD_DIR = process.env.UPLOAD_DIR || 'uploads';
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 const VERBOSE = process.env.VERBOSE === 'true';
+const STICKER_IMAGE_PROVIDER =
+  (process.env.STICKER_IMAGE_PROVIDER || 'gemini').toLowerCase().trim();
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash-image';
+const GEMINI_IMAGE_MODEL =
+  process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const SEEDREAM_MODEL =
+  process.env.SEEDREAM_MODEL || 'doubao-seedream-4-5-251128';
+const SEEDREAM_API_KEY =
+  process.env.SEEDREAM_API_KEY || process.env.ARK_API_KEY || '';
 
 // 中间件
 app.use(cors());
@@ -114,6 +125,36 @@ function errorResponse(message, code) {
   return { success: false, error: { message, code } };
 }
 
+function normalizeUrl(req, url) {
+  if (!url) return url;
+  const host = req.get('host') || `localhost:${PORT}`;
+  const protocol = req.protocol || 'http';
+
+  try {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      const u = new URL(url);
+      return `${protocol}://${host}${u.pathname}`;
+    }
+  } catch (_) {
+    // fallthrough to handle as relative path
+  }
+
+  if (url.startsWith('/')) {
+    return `${protocol}://${host}${url}`;
+  }
+  return `${protocol}://${host}/${url}`;
+}
+
+function normalizeDiaryList(req, diaries) {
+  return diaries.map(d => ({
+    ...d,
+    avatar: normalizeUrl(req, d.avatar || d.imagePath || ''),
+    imageList: Array.isArray(d.imageList)
+      ? d.imageList.map(u => normalizeUrl(req, u))
+      : d.imageList
+  }));
+}
+
 // 内部 pet → api.md 格式映射
 function mapPetToApi(pet) {
   const speciesMap = { cat: 2, dog: 1 };
@@ -181,23 +222,6 @@ app.get('/', (req, res) => {
     message: 'Pet Diary Mock Server',
     version: '1.0.0',
     endpoints: {
-      pets: {
-        'POST /api/v1/pets/profile': '同步宠物档案',
-        'GET /api/v1/pets/:petId/profile': '获取宠物档案',
-      },
-      photos: {
-        'POST /api/v1/upload/profile-photo': '上传头像照片',
-        'POST /api/v1/upload/photo': '上传普通照片',
-        'GET /api/v1/photos/:photoId': '获取照片信息',
-      },
-      diaries: {
-        'POST /api/v1/diaries': '创建日记',
-        'GET /api/v1/diaries': '获取日记列表',
-        'GET /api/v1/diaries/:diaryId': '获取日记详情',
-      },
-      stats: {
-        'GET /api/v1/stats': '获取服务器统计信息',
-      },
       chongyu: {
         'GET /api/chongyu/pet/list': '查询宠物列表',
         'GET /api/chongyu/pet/detail': '查询宠物/日记详情',
@@ -206,9 +230,16 @@ app.get('/', (req, res) => {
         'GET /api/chongyu/diary/calendar': '查询日历情绪',
         'GET /api/chongyu/diary/7days': '查询前7天情绪',
         'GET /api/chongyu/pet/photos': '查询宠物照片',
-      },
-      ai: {
-        'POST /api/ai/sticker/generate': '生成贴纸（AI 管线）'
+        'POST /api/chongyu/pets/profile': '同步宠物档案',
+        'GET /api/chongyu/pets/:petId/profile': '获取宠物档案',
+        'POST /api/chongyu/upload/profile-photo': '上传头像照片',
+        'POST /api/chongyu/upload/photo': '上传普通照片',
+        'GET /api/chongyu/photos/:photoId': '获取照片信息',
+        'POST /api/chongyu/diaries': '创建日记',
+        'GET /api/chongyu/diaries': '获取日记列表',
+        'GET /api/chongyu/diaries/:diaryId': '获取日记详情',
+        'GET /api/chongyu/stats': '获取服务器统计信息',
+        'POST /api/chongyu/ai/sticker/generate': '生成贴纸（AI 管线）'
       }
     }
   });
@@ -217,7 +248,7 @@ app.get('/', (req, res) => {
 // ==================== AI Pipeline ====================
 
 // 生成贴纸（Emotion → Prompt → Sticker）
-app.post('/api/ai/sticker/generate', upload.single('image'), async (req, res) => {
+app.post('/api/chongyu/ai/sticker/generate', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json(errorResponse('未接收到图片文件', 400));
   }
@@ -233,7 +264,41 @@ app.post('/api/ai/sticker/generate', upload.single('image'), async (req, res) =>
     res.json(successResponse(result));
   } catch (error) {
     console.error('❌ AI 贴纸生成失败:', error);
-    res.status(500).json(errorResponse('AI 贴纸生成失败', 500));
+    // 兜底：返回原图作为贴纸，避免客户端长时间等待
+    const host = req.get('host') || `localhost:${PORT}`;
+    const protocol = req.protocol || 'http';
+    const relPath = String(req.file.path || '').replace(/\\/g, '/');
+    const idx = relPath.indexOf(UPLOAD_DIR);
+    const publicPath = idx >= 0 ? relPath.substring(idx) : relPath;
+    const imageUrl = normalizeUrl(req, publicPath);
+
+    const fallback = {
+      analysis: {
+        emotion: 'calm',
+        confidence: 0.0,
+        reasoning: 'fallback'
+      },
+      pet_features: {
+        species: 'other',
+        breed: '宠物',
+        primary_color: 'unknown',
+        markings: 'unknown',
+        eye_color: 'unknown',
+        pose: 'unknown'
+      },
+      sticker: {
+        style: 'fallback',
+        prompt: '',
+        imageUrl
+      },
+      meta: {
+        pipelineVersion: 'fallback',
+        generatedAt: new Date().toISOString(),
+        error: error?.message || 'AI 贴纸生成失败'
+      }
+    };
+
+    res.json(successResponse(fallback));
   }
 });
 
@@ -303,7 +368,11 @@ app.get('/api/chongyu/pet/detail', (req, res) => {
   if (VERBOSE) console.log('🐾 查询宠物详情:', petId);
 
   const detail = mapPetToApi(pet);
-  res.json(successResponse(detail));
+  const normalized = {
+    ...detail,
+    avatar: normalizeUrl(req, detail.avatar)
+  };
+  res.json(successResponse(normalized));
 });
 
 // 批量上传相册图片（支持 pet_photos 去重）
@@ -425,7 +494,10 @@ app.get('/api/chongyu/diary/list', (req, res) => {
     .filter(d => d.petId === petId)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const diaryList = diaries.map(mapDiaryToListItem);
+  const diaryList = normalizeDiaryList(
+    req,
+    diaries.map(mapDiaryToListItem)
+  );
 
   if (VERBOSE) console.log(`📋 查询日记列表: petId=${petId}, count=${diaryList.length}`);
 
@@ -451,9 +523,12 @@ app.get('/api/chongyu/diary/calendar', (req, res) => {
     return dDate.getFullYear() === year && (dDate.getMonth() + 1) === month;
   });
 
-  const dayList = diaries
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .map(mapDiaryToCalendarDay);
+  const dayList = normalizeDiaryList(
+    req,
+    diaries
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map(mapDiaryToCalendarDay)
+  );
 
   if (VERBOSE) console.log(`📅 查询日历: petId=${petId}, yearMonth=${yearMonth}, days=${dayList.length}`);
 
@@ -482,9 +557,12 @@ app.get('/api/chongyu/diary/7days', (req, res) => {
     return dDate >= startDate && dDate <= endDate;
   });
 
-  const dayList = diaries
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .map(mapDiaryToCalendarDay);
+  const dayList = normalizeDiaryList(
+    req,
+    diaries
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map(mapDiaryToCalendarDay)
+  );
 
   if (VERBOSE) console.log(`📆 查询7天: petId=${petId}, date=${date}, days=${dayList.length}`);
 
@@ -510,13 +588,17 @@ app.get('/api/chongyu/pet/photos', (req, res) => {
 
   if (VERBOSE) console.log(`📸 查询宠物照片: petId=${petId}, date=${date || 'all'}, count=${photos.length}`);
 
-  res.json(successResponse({ photoList: photos }));
+  const photoList = photos.map(p => ({
+    ...p,
+    url: normalizeUrl(req, p.url)
+  }));
+  res.json(successResponse({ photoList }));
 });
 
-// ==================== 宠物 API (v1, 保留向后兼容) ====================
+// ==================== 宠物 API (chongyu) ====================
 
 // 同步宠物档案
-app.post('/api/v1/pets/profile', (req, res) => {
+app.post('/api/chongyu/pets/profile', (req, res) => {
   if (VERBOSE) console.log('📝 收到宠物档案同步请求:', req.body);
 
   const pet = req.body;
@@ -554,7 +636,7 @@ app.post('/api/v1/pets/profile', (req, res) => {
 });
 
 // 获取宠物档案
-app.get('/api/v1/pets/:petId/profile', (req, res) => {
+app.get('/api/chongyu/pets/:petId/profile', (req, res) => {
   const { petId } = req.params;
   const pet = database.pets.find(p => p.id === petId);
 
@@ -571,10 +653,10 @@ app.get('/api/v1/pets/:petId/profile', (req, res) => {
   }
 });
 
-// ==================== 照片上传 API (v1) ====================
+// ==================== 照片上传 API (chongyu) ====================
 
 // 上传头像照片
-app.post('/api/v1/upload/profile-photo', upload.single('photo'), (req, res) => {
+app.post('/api/chongyu/upload/profile-photo', upload.single('photo'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       success: false,
@@ -604,7 +686,7 @@ app.post('/api/v1/upload/profile-photo', upload.single('photo'), (req, res) => {
 });
 
 // 上传普通照片
-app.post('/api/v1/upload/photo', upload.single('photo'), (req, res) => {
+app.post('/api/chongyu/upload/photo', upload.single('photo'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({
       success: false,
@@ -640,7 +722,7 @@ app.post('/api/v1/upload/photo', upload.single('photo'), (req, res) => {
 });
 
 // 获取照片信息
-app.get('/api/v1/photos/:photoId', (req, res) => {
+app.get('/api/chongyu/photos/:photoId', (req, res) => {
   const { photoId } = req.params;
   const photo = database.photos.find(p => p.id === photoId);
 
@@ -657,10 +739,10 @@ app.get('/api/v1/photos/:photoId', (req, res) => {
   }
 });
 
-// ==================== 日记 API (v1) ====================
+// ==================== 日记 API (chongyu) ====================
 
 // 创建日记
-app.post('/api/v1/diaries', (req, res) => {
+app.post('/api/chongyu/diaries', (req, res) => {
   if (VERBOSE) console.log('📔 收到日记创建请求:', req.body);
 
   const diary = {
@@ -697,7 +779,7 @@ app.post('/api/v1/diaries', (req, res) => {
 });
 
 // 获取日记列表
-app.get('/api/v1/diaries', (req, res) => {
+app.get('/api/chongyu/diaries', (req, res) => {
   const { petId, limit = 30, offset = 0 } = req.query;
 
   let diaries = database.diaries;
@@ -724,7 +806,7 @@ app.get('/api/v1/diaries', (req, res) => {
 });
 
 // 获取日记详情
-app.get('/api/v1/diaries/:diaryId', (req, res) => {
+app.get('/api/chongyu/diaries/:diaryId', (req, res) => {
   const { diaryId } = req.params;
   const diary = database.diaries.find(d => d.id === diaryId);
 
@@ -741,10 +823,10 @@ app.get('/api/v1/diaries/:diaryId', (req, res) => {
   }
 });
 
-// ==================== 统计 API ====================
+// ==================== 统计 API (chongyu) ====================
 
 // 获取服务器统计信息
-app.get('/api/v1/stats', (req, res) => {
+app.get('/api/chongyu/stats', (req, res) => {
   res.json({
     success: true,
     data: {
@@ -782,14 +864,15 @@ app.listen(PORT, HOST, () => {
   console.log(`   宠物照片: ${(database.pet_photos || []).length}`);
   console.log(`   日记: ${database.diaries.length}`);
   console.log('');
-  console.log('💡 API端点:');
-  console.log('   [v1] POST /api/v1/pets/profile - 同步宠物档案');
-  console.log('   [v1] POST /api/v1/upload/profile-photo - 上传头像');
-  console.log('   [v1] POST /api/v1/upload/photo - 上传照片');
-  console.log('   [v1] POST /api/v1/diaries - 创建日记');
-  console.log('   [v1] GET  /api/v1/diaries - 获取日记列表');
-  console.log('   [v1] GET  /api/v1/stats - 查看统计信息');
+  console.log('🤖 AI 配置:');
+  console.log(`   贴纸供应商: ${STICKER_IMAGE_PROVIDER}`);
+  console.log(`   Gemini 模型(情绪/特征): ${GEMINI_MODEL}`);
+  console.log(`   Gemini 模型(生图): ${GEMINI_IMAGE_MODEL}`);
+  console.log(`   Gemini Key: ${GEMINI_API_KEY ? '✅ 已设置' : '❌ 未设置'}`);
+  console.log(`   Seedream 模型: ${SEEDREAM_MODEL}`);
+  console.log(`   Seedream Key: ${SEEDREAM_API_KEY ? '✅ 已设置' : '❌ 未设置'}`);
   console.log('');
+  console.log('💡 API端点:');
   console.log('   [chongyu] GET  /api/chongyu/pet/list - 宠物列表');
   console.log('   [chongyu] GET  /api/chongyu/pet/detail - 宠物/日记详情');
   console.log('   [chongyu] POST /api/chongyu/image/list/upload - 批量上传图片');
@@ -797,7 +880,13 @@ app.listen(PORT, HOST, () => {
   console.log('   [chongyu] GET  /api/chongyu/diary/calendar - 日历情绪');
   console.log('   [chongyu] GET  /api/chongyu/diary/7days - 前7天情绪');
   console.log('   [chongyu] GET  /api/chongyu/pet/photos - 宠物照片');
-  console.log('   [ai] POST /api/ai/sticker/generate - 生成贴纸');
+  console.log('   [chongyu] POST /api/chongyu/pets/profile - 同步宠物档案');
+  console.log('   [chongyu] POST /api/chongyu/upload/profile-photo - 上传头像');
+  console.log('   [chongyu] POST /api/chongyu/upload/photo - 上传照片');
+  console.log('   [chongyu] POST /api/chongyu/diaries - 创建日记');
+  console.log('   [chongyu] GET  /api/chongyu/diaries - 获取日记列表');
+  console.log('   [chongyu] GET  /api/chongyu/stats - 查看统计信息');
+  console.log('   [chongyu] POST /api/chongyu/ai/sticker/generate - 生成贴纸');
   console.log('');
   console.log('⚙️  配置:');
   console.log(`   数据库文件: ${DB_FILE_NAME}`);

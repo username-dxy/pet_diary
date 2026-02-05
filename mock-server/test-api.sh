@@ -3,6 +3,7 @@
 # Pet Diary Mock Server API 测试脚本
 
 BASE_URL="http://localhost:3000"
+TOKEN="${TOKEN:-test-token}"
 
 echo "🧪 ====================================="
 echo "   Pet Diary API 测试"
@@ -22,13 +23,14 @@ echo ""
 
 # 测试获取统计信息
 echo "📊 2. 获取统计信息..."
-curl -s $BASE_URL/api/v1/stats | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/stats | python3 -m json.tool
 echo ""
 
 # 测试创建宠物档案
 echo "📝 3. 测试创建宠物档案..."
-curl -s -X POST $BASE_URL/api/v1/pets/profile \
+curl -s -X POST $BASE_URL/api/chongyu/pets/profile \
   -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
   -d '{
     "id": "test_pet_001",
     "name": "测试小猫",
@@ -44,13 +46,14 @@ echo ""
 
 # 测试获取宠物档案
 echo "🔍 4. 测试获取宠物档案..."
-curl -s $BASE_URL/api/v1/pets/test_pet_001/profile | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/pets/test_pet_001/profile | python3 -m json.tool
 echo ""
 
 # 测试创建日记
 echo "📔 5. 测试创建日记..."
-curl -s -X POST $BASE_URL/api/v1/diaries \
+curl -s -X POST $BASE_URL/api/chongyu/diaries \
   -H "Content-Type: application/json" \
+  -H "token: $TOKEN" \
   -d '{
     "id": "test_diary_001",
     "petId": "test_pet_001",
@@ -63,12 +66,12 @@ echo ""
 
 # 测试获取日记列表
 echo "📚 6. 测试获取日记列表..."
-curl -s "$BASE_URL/api/v1/diaries?petId=test_pet_001&limit=10" | python3 -m json.tool
+curl -s -H "token: $TOKEN" "$BASE_URL/api/chongyu/diaries?petId=test_pet_001&limit=10" | python3 -m json.tool
 echo ""
 
 # 再次获取统计信息
 echo "📊 7. 查看更新后的统计信息..."
-curl -s $BASE_URL/api/v1/stats | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/stats | python3 -m json.tool
 echo ""
 
 echo "✅ ====================================="

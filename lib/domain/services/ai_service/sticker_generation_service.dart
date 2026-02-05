@@ -29,7 +29,7 @@ class StickerGenerationService {
     required File photo,
   }) {
     return _client.uploadFiles<AiStickerResult>(
-      '/api/ai/sticker/generate',
+      '/api/chongyu/ai/sticker/generate',
       files: {'image': [photo.path]},
       fromJson: (json) {
         if (json is Map<String, dynamic>) {

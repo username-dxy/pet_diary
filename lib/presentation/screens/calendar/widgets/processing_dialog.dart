@@ -47,27 +47,19 @@ class ProcessingDialog extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // 显示识别结果
-              if (viewModel.recognizedEmotion != null) ...[
-                Text(
-                  '识别情绪：${AssetManager.instance.getEmotionName(viewModel.recognizedEmotion!)}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 12),
-                AssetManager.instance.getEmotionSticker(
-                  viewModel.recognizedEmotion!,
-                  size: 60,
-                ),
-                if (viewModel.generatedStickerPath != null) ...[
-                  const SizedBox(height: 16),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+            if (viewModel.generatedStickerPath != null) ...[
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
                     child: viewModel.usedFallback
                         ? Image.file(
                             File(viewModel.generatedStickerPath!),
                             width: 150,
                             height: 150,
                             fit: BoxFit.cover,
+                            cacheWidth: 300,
+                            cacheHeight: 300,
+                            filterQuality: FilterQuality.low,
                           )
                         : (viewModel.generatedStickerPath!.startsWith('http')
                             ? Image.network(
@@ -75,15 +67,28 @@ class ProcessingDialog extends StatelessWidget {
                                 width: 150,
                                 height: 150,
                                 fit: BoxFit.cover,
+                                cacheWidth: 300,
+                                cacheHeight: 300,
+                                filterQuality: FilterQuality.low,
                               )
                             : Image.file(
                                 File(viewModel.generatedStickerPath!),
                                 width: 150,
                                 height: 150,
                                 fit: BoxFit.cover,
+                                cacheWidth: 300,
+                                cacheHeight: 300,
+                                filterQuality: FilterQuality.low,
                               )),
                   ),
                 ],
+              const SizedBox(height: 20),
+              // 显示识别结果
+              if (viewModel.recognizedEmotion != null) ...[
+                Text(
+                  '识别情绪：${AssetManager.instance.getEmotionName(viewModel.recognizedEmotion!)}',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(height: 20),
 
                 Row(

@@ -306,7 +306,7 @@ cat mock-server/db.json | jq '.pet_photos[] | {petId, date, assetId, url}'
 cat mock-server/db.json | jq '.diaries[] | select(.id == "test_diary_001") | .imageList'
 
 # 查看上传统计
-curl http://192.168.3.129:3000/api/v1/stats | jq '.data'
+curl http://192.168.3.129:3000/api/chongyu/stats | jq '.data'
 ```
 
 ---
