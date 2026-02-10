@@ -1,9 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pet_diary/data/data_sources/remote/emotion_api_service.dart';
 import 'package:pet_diary/data/models/emotion_record.dart';
+import 'package:pet_diary/data/models/pet.dart';
 import 'package:pet_diary/data/models/pet_features.dart';
 import 'package:pet_diary/data/repositories/emotion_repository.dart';
+import 'package:pet_diary/data/repositories/pet_repository.dart';
 import 'package:pet_diary/domain/services/ai_service/emotion_recognition_service.dart';
 import 'package:pet_diary/domain/services/ai_service/feature_extraction_service.dart';
 import 'package:pet_diary/domain/services/ai_service/sticker_generation_service.dart';
@@ -12,9 +15,13 @@ import 'dart:io';
 
 class CalendarViewModel extends ChangeNotifier {
   final EmotionRepository _repository = EmotionRepository();
+  final PetRepository _petRepository = PetRepository();
+  final EmotionApiService _emotionApiService = EmotionApiService();
   final EmotionRecognitionService _emotionService = EmotionRecognitionService();
   final FeatureExtractionService _featureService = FeatureExtractionService();
   final StickerGenerationService _stickerService = StickerGenerationService();
+
+  Pet? _currentPet;
 
   int _currentYear = DateTime.now().year;
   int _currentMonth = DateTime.now().month;
@@ -22,6 +29,7 @@ class CalendarViewModel extends ChangeNotifier {
 
   // 添加情绪流程状态
   File? _selectedImage;
+  double? _aiConfidence;
   double _progress = 0.0;
   String _currentStep = '';
   Emotion? _recognizedEmotion;
@@ -49,6 +57,7 @@ class CalendarViewModel extends ChangeNotifier {
 
   /// 加载月度记录
   Future<void> loadMonth() async {
+    _currentPet = await _petRepository.getCurrentPet();
     _monthRecords = await _repository.getMonthRecords(_currentYear, _currentMonth);
     notifyListeners();
   }
@@ -155,6 +164,7 @@ class CalendarViewModel extends ChangeNotifier {
 
       final result = response.data!;
       _recognizedEmotion = result.emotion;
+      _aiConfidence = result.confidence;
       _extractedFeatures = result.features;
       _generatedStickerPath =
           result.stickerUrl.isNotEmpty ? result.stickerUrl : _selectedImage!.path;
@@ -179,6 +189,7 @@ class CalendarViewModel extends ChangeNotifier {
 
     await Future.delayed(const Duration(milliseconds: 500));
     _usedFallback = true;
+    _aiConfidence = 0.0;
 
     _recognizedEmotion = Emotion.values[
       DateTime.now().millisecondsSinceEpoch % Emotion.values.length
@@ -280,11 +291,11 @@ class CalendarViewModel extends ChangeNotifier {
 
     final record = EmotionRecord(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      petId: 'pet_123', // TODO: 从全局状态获取
+      petId: _currentPet?.id ?? 'unknown',
       date: DateTime.now(),
       originalPhotoPath: _selectedImage?.path,
       aiEmotion: _recognizedEmotion!,
-      aiConfidence: 0.85, // TODO: 从模型A获取真实值
+      aiConfidence: _aiConfidence ?? 0.0,
       aiFeatures: _extractedFeatures!,
       selectedEmotion: _recognizedEmotion!,
       stickerUrl: _generatedStickerPath,
@@ -292,11 +303,51 @@ class CalendarViewModel extends ChangeNotifier {
       updatedAt: DateTime.now(),
     );
 
+    // 本地保存
     await _repository.saveRecord(record);
+    debugPrint('📝 [Calendar] 本地保存成功: ${record.id}');
+
+    // 服务器同步（失败不阻塞）
+    try {
+      final response = await _emotionApiService.saveEmotionRecord(record.toJson());
+      if (response.success) {
+        debugPrint('✅ [Calendar] 服务器同步成功: ${response.data?.recordId}');
+      } else {
+        debugPrint('⚠️ [Calendar] 服务器同步失败: ${response.errorMessage}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [Calendar] 服务器同步异常: $e');
+    }
+
     await loadMonth(); // 重新加载月度数据
     _resetProcessState();
-    
-    debugPrint('记录保存成功: ${record.id}');
+  }
+
+  /// 更新已有记录的情绪（TODO 3: 切换情绪逻辑）
+  Future<void> updateRecordEmotion(DateTime date, Emotion newEmotion) async {
+    final dateKey = DateTime(date.year, date.month, date.day);
+    final record = _monthRecords[dateKey];
+    if (record == null) return;
+
+    final updated = record.copyWith(selectedEmotion: newEmotion);
+
+    // 本地保存
+    await _repository.saveRecord(updated);
+    debugPrint('📝 [Calendar] 情绪更新本地保存: ${updated.id} → ${newEmotion.name}');
+
+    // 服务器同步（失败不阻塞）
+    try {
+      final response = await _emotionApiService.saveEmotionRecord(updated.toJson());
+      if (response.success) {
+        debugPrint('✅ [Calendar] 情绪更新服务器同步成功: ${response.data?.recordId}');
+      } else {
+        debugPrint('⚠️ [Calendar] 情绪更新服务器同步失败: ${response.errorMessage}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [Calendar] 情绪更新服务器同步异常: $e');
+    }
+
+    await loadMonth();
   }
 
   /// 删除记录
@@ -312,6 +363,7 @@ class CalendarViewModel extends ChangeNotifier {
     _progress = 0.0;
     _currentStep = '';
     _recognizedEmotion = null;
+    _aiConfidence = null;
     _extractedFeatures = null;
     _generatedStickerPath = null;
     _isProcessing = false;

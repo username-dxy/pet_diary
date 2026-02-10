@@ -185,7 +185,7 @@ class _HomeScreenContent extends StatelessWidget {
           width: 80.5 * scaleX,
           height: 47.5 * scaleY,
           child: GestureDetector(
-            onTap: () => _navigateToDiary(context),
+            onTap: () => _navigateToDiary(context, viewModel),
             child: Container(color: Colors.transparent),
           ),
         ),
@@ -201,7 +201,8 @@ class _HomeScreenContent extends StatelessWidget {
     viewModel.refresh();
   }
 
-  void _navigateToDiary(BuildContext context) {
+  void _navigateToDiary(BuildContext context, HomeViewModel viewModel) {
+    viewModel.markDiaryViewed();
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DiaryScreen()),

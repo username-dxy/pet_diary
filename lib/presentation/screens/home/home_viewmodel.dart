@@ -7,12 +7,15 @@ import 'package:pet_diary/data/models/emotion_record.dart';
 import 'package:pet_diary/data/models/scan_result.dart';
 import 'package:pet_diary/data/repositories/pet_repository.dart';
 import 'package:pet_diary/data/repositories/emotion_repository.dart';
+import 'package:pet_diary/data/repositories/diary_repository.dart';
 import 'package:pet_diary/domain/services/background_scan_service.dart';
 import 'package:pet_diary/domain/services/scan_upload_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final PetRepository _petRepository = PetRepository();
   final EmotionRepository _emotionRepository = EmotionRepository();
+  final DiaryRepository _diaryRepository = DiaryRepository();
   final BackgroundScanService _scanService = BackgroundScanService();
   final ScanUploadService _uploadService = ScanUploadService();
 
@@ -75,8 +78,8 @@ class HomeViewModel extends ChangeNotifier {
       // 加载今日贴纸
       _todaySticker = await _emotionRepository.getTodayRecord();
 
-      // 检查是否有新日记（TODO）
-      _hasNewDiary = _checkNewDiary();
+      // 检查是否有新日记
+      _hasNewDiary = await _checkNewDiary();
 
       // 触发扫描上传管线
       _triggerScanOnStartup();
@@ -88,9 +91,32 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  bool _checkNewDiary() {
-    // TODO: 实现逻辑
-    return false;
+  static const String _lastDiaryViewDateKey = 'last_diary_view_date';
+
+  Future<bool> _checkNewDiary() async {
+    // 检查今天是否有日记
+    final todayEntry = await _diaryRepository.getEntryByDate(DateTime.now());
+    if (todayEntry == null) return false;
+
+    // 检查用户是否已查看过今天的日记
+    final prefs = await SharedPreferences.getInstance();
+    final lastViewDate = prefs.getString(_lastDiaryViewDateKey);
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    if (lastViewDate == todayStr) return false;
+
+    return true;
+  }
+
+  /// 标记日记已查看
+  Future<void> markDiaryViewed() async {
+    final today = DateTime.now();
+    final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastDiaryViewDateKey, todayStr);
+    _hasNewDiary = false;
+    notifyListeners();
   }
 
   /// 启动时触发扫描 + 上传管线

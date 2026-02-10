@@ -108,6 +108,18 @@ class MonthGridWidget extends StatelessWidget {
 
   /// 构建记录预览（照片或emoji）
   Widget _buildRecordPreview(EmotionRecord record) {
+    // 优先显示生成的贴纸
+    final stickerPath = record.stickerUrl;
+    if (stickerPath != null && stickerPath.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: _buildStickerImage(
+          stickerPath,
+          record.selectedEmotion,
+        ),
+      );
+    }
+
     // 如果有照片路径，显示照片
     if (record.originalPhotoPath != null) {
       return ClipRRect(
@@ -132,6 +144,40 @@ class MonthGridWidget extends StatelessWidget {
     return AssetManager.instance.getEmotionSticker(
       record.selectedEmotion,
       size: 32,
+    );
+  }
+
+  Widget _buildStickerImage(String path, Emotion fallbackEmotion) {
+    final uri = Uri.tryParse(path);
+    final isNetwork = uri != null &&
+        (uri.scheme == 'http' || uri.scheme == 'https');
+
+    if (isNetwork) {
+      return Image.network(
+        path,
+        width: 40,
+        height: 40,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return AssetManager.instance.getEmotionSticker(
+            fallbackEmotion,
+            size: 32,
+          );
+        },
+      );
+    }
+
+    return Image.file(
+      File(path),
+      width: 40,
+      height: 40,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return AssetManager.instance.getEmotionSticker(
+          fallbackEmotion,
+          size: 32,
+        );
+      },
     );
   }
 

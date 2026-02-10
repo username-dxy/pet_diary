@@ -137,10 +137,7 @@ class _CalendarScreenContent extends StatelessWidget {
             currentEmotion: record.selectedEmotion,
             onEmotionSelected: (emotion) async {
               Navigator.pop(context);
-              // TODO: 实现切换情绪逻辑
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('切换到${emotion.name}')),
-              );
+              await viewModel.updateRecordEmotion(date, emotion);
             },
           ),
         ),

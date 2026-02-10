@@ -1,56 +1,17 @@
 {
   "pets": [
     {
-      "id": "test_pet_001",
-      "name": "测试小猫",
+      "id": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "name": "ipo",
       "species": "cat",
-      "breed": "橘猫",
-      "ownerNickname": "测试主人",
-      "birthday": "2020-05-01T00:00:00.000Z",
+      "breed": null,
+      "profilePhotoPath": "/var/mobile/Containers/Data/Application/FAD6F4F9-A913-4CB1-9407-C9CA1F7D7BDA/Documents/diary_photos/diary_1770360980184.jpg",
+      "birthday": "2025-01-21T00:00:00.000",
+      "ownerNickname": "姐姐",
       "gender": "male",
-      "personality": "playful",
-      "profilePhotoPath": "",
-      "createdAt": "2024-01-26T10:00:00.000Z",
-      "updatedAt": "2026-01-26T12:42:22.573Z"
-    },
-    {
-      "id": "test_pet_002",
-      "name": "小白",
-      "species": "dog",
-      "breed": "萨摩耶",
-      "ownerNickname": "铲屎官",
-      "birthday": "2021-03-15T00:00:00.000Z",
-      "gender": "female",
       "personality": "lively",
-      "profilePhotoPath": "",
-      "createdAt": "2024-06-10T08:00:00.000Z",
-      "updatedAt": "2026-01-28T09:00:00.000Z"
-    },
-    {
-      "id": "51b1c795-1b1e-44e3-9a49-40c0c4824c75",
-      "name": "Ty",
-      "species": "cat",
-      "breed": null,
-      "profilePhotoPath": "/Users/00ffff/Library/Developer/CoreSimulator/Devices/C06E1FF9-4662-43AD-977F-8DBB061F0A98/data/Containers/Data/Application/F27BD6B4-15D3-4E51-A806-D7C0ACD79480/Documents/diary_photos/diary_1770089224710.jpg",
-      "birthday": "2025-01-19T00:00:00.000",
-      "ownerNickname": "铲屎官",
-      "gender": "unknown",
-      "personality": "quiet",
-      "createdAt": "2026-02-03T03:27:04.833Z",
-      "updatedAt": "2026-02-03T03:27:04.840Z"
-    },
-    {
-      "id": "dde10bd0-0234-4eca-819c-973376c2d330",
-      "name": "dd",
-      "species": "cat",
-      "breed": null,
-      "profilePhotoPath": "/var/mobile/Containers/Data/Application/D9A2762D-59DC-491A-9A5C-F926DA2FE40D/Documents/diary_photos/diary_1770089998085.jpg",
-      "birthday": "2025-01-05T00:00:00.000",
-      "ownerNickname": "铲屎官",
-      "gender": "unknown",
-      "personality": "independent",
-      "createdAt": "2026-02-03T03:39:58.605Z",
-      "updatedAt": "2026-02-03T03:39:58.606Z"
+      "createdAt": "2026-02-06T06:56:21.280Z",
+      "updatedAt": "2026-02-06T06:56:21.280Z"
     }
   ],
   "photos": [
@@ -83,146 +44,139 @@
       "time": "1770196067000",
       "location": null,
       "uploadedAt": "2026-02-04T09:10:21.659Z"
+    },
+    {
+      "id": "7f8b75b4-0bc0-48c7-a893-e370c7fd0406",
+      "url": "http://192.168.3.129:3000/uploads/photos/bfe872ea-9379-4f95-a9ee-ffc11d5427b5.jpg",
+      "localPath": "uploads/photos/bfe872ea-9379-4f95-a9ee-ffc11d5427b5.jpg",
+      "size": 87993,
+      "mimeType": "application/octet-stream",
+      "time": "1770275520000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:17.749Z"
+    },
+    {
+      "id": "6c232b86-cdda-4fb9-99b4-9b328eaf7794",
+      "url": "http://192.168.3.129:3000/uploads/photos/7341106d-a50e-47d3-994f-241488ecacea.jpg",
+      "localPath": "uploads/photos/7341106d-a50e-47d3-994f-241488ecacea.jpg",
+      "size": 88266,
+      "mimeType": "application/octet-stream",
+      "time": "1770275518000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.153Z"
+    },
+    {
+      "id": "780f1dd1-8f41-4497-8da1-d8d6bd0c6587",
+      "url": "http://192.168.3.129:3000/uploads/photos/d7fd421c-bb46-4908-a4c4-72e601ec2d7e.jpg",
+      "localPath": "uploads/photos/d7fd421c-bb46-4908-a4c4-72e601ec2d7e.jpg",
+      "size": 115447,
+      "mimeType": "application/octet-stream",
+      "time": "1770257259000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.258Z"
+    },
+    {
+      "id": "2c9893d1-5e7b-49a5-8e66-2690e0b82a5f",
+      "url": "http://192.168.3.129:3000/uploads/photos/8ce9dc28-c31e-4944-9eb4-a236badcee3e.jpg",
+      "localPath": "uploads/photos/8ce9dc28-c31e-4944-9eb4-a236badcee3e.jpg",
+      "size": 47708,
+      "mimeType": "application/octet-stream",
+      "time": "1770196835000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.418Z"
+    },
+    {
+      "id": "a13bb7bd-b76d-4eeb-ac5c-86f7494b80d1",
+      "url": "http://192.168.3.129:3000/uploads/photos/fb310aed-d90a-45c2-b6a7-3f4c2b5fe786.jpg",
+      "localPath": "uploads/photos/fb310aed-d90a-45c2-b6a7-3f4c2b5fe786.jpg",
+      "size": 113554,
+      "mimeType": "application/octet-stream",
+      "time": "1769478178000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.964Z"
+    },
+    {
+      "id": "45a41735-904e-4bc0-91fb-d2f6e17e415e",
+      "url": "http://192.168.3.129:3000/uploads/photos/b65b34ce-86c9-4271-968e-372e5b778bcf.jpg",
+      "localPath": "uploads/photos/b65b34ce-86c9-4271-968e-372e5b778bcf.jpg",
+      "size": 122332,
+      "mimeType": "application/octet-stream",
+      "time": "1768222077000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:03.514Z"
+    },
+    {
+      "id": "cc4ccab8-615e-476c-ae0a-7aae66b31596",
+      "url": "http://192.168.3.129:3000/uploads/photos/10fef520-98ee-459a-8f67-3d4f10e1fcdc.jpg",
+      "localPath": "uploads/photos/10fef520-98ee-459a-8f67-3d4f10e1fcdc.jpg",
+      "size": 88496,
+      "mimeType": "application/octet-stream",
+      "time": "1768221950000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:03.683Z"
+    },
+    {
+      "id": "959901c5-bc7a-4c0e-a366-ec653ba4fa03",
+      "url": "http://192.168.3.129:3000/uploads/photos/00f9b87d-2e02-49cc-a3eb-c7ba68f3a508.jpg",
+      "localPath": "uploads/photos/00f9b87d-2e02-49cc-a3eb-c7ba68f3a508.jpg",
+      "size": 83313,
+      "mimeType": "application/octet-stream",
+      "time": "1767712781000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:04.114Z"
+    },
+    {
+      "id": "615b19a3-9067-454a-bf10-2760515c0020",
+      "url": "http://192.168.3.129:3000/uploads/photos/bf6c3bf1-d327-403e-b396-3531d3350777.jpg",
+      "localPath": "uploads/photos/bf6c3bf1-d327-403e-b396-3531d3350777.jpg",
+      "size": 131332,
+      "mimeType": "application/octet-stream",
+      "time": "1770355074000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:09.469Z"
+    },
+    {
+      "id": "8ce2e9c1-4b26-4f96-b48e-b6cf1cbd4b25",
+      "url": "http://192.168.3.129:3000/uploads/photos/076b4aa6-86d2-4657-9f33-385a2df219ea.jpg",
+      "localPath": "uploads/photos/076b4aa6-86d2-4657-9f33-385a2df219ea.jpg",
+      "size": 106227,
+      "mimeType": "application/octet-stream",
+      "time": "1770355072000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.233Z"
+    },
+    {
+      "id": "3f7e279f-9bb6-4588-bd99-b8a40077b494",
+      "url": "http://192.168.3.129:3000/uploads/photos/89df4fea-3f54-4439-b157-28fe785526bd.jpg",
+      "localPath": "uploads/photos/89df4fea-3f54-4439-b157-28fe785526bd.jpg",
+      "size": 143293,
+      "mimeType": "application/octet-stream",
+      "time": "1770355063000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.461Z"
+    },
+    {
+      "id": "dadf540b-279b-4494-8c1e-6e9099d8a72f",
+      "url": "http://192.168.3.129:3000/uploads/photos/7fe5f70a-2535-4dbb-8bf9-52dd716b8c94.jpg",
+      "localPath": "uploads/photos/7fe5f70a-2535-4dbb-8bf9-52dd716b8c94.jpg",
+      "size": 77694,
+      "mimeType": "application/octet-stream",
+      "time": "1770355061000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.687Z"
+    },
+    {
+      "id": "8513dcc6-20f4-4f1b-b90a-1feff4184a63",
+      "url": "http://192.168.3.129:3000/uploads/photos/01f892b0-29a0-4ced-9c25-d7d8f3a6baa3.jpg",
+      "localPath": "uploads/photos/01f892b0-29a0-4ced-9c25-d7d8f3a6baa3.jpg",
+      "size": 51122,
+      "mimeType": "application/octet-stream",
+      "time": "1770301226000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:11.323Z"
     }
   ],
   "diaries": [
-    {
-      "id": "test_diary_001",
-      "petId": "test_pet_001",
-      "date": "2026-01-26",
-      "title": "阳光下打滚的一天",
-      "content": "今天测试小猫很开心，在阳光下打滚。阳光透过窗户洒在地板上，小猫咪在光斑里翻来覆去，肚皮朝上，四爪乱蹬，看起来特别满足。",
-      "imagePath": "https://placekitten.com/400/300",
-      "emotion": 1,
-      "imageList": [
-        "https://placekitten.com/400/300",
-        "https://placekitten.com/401/301"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-26T10:00:00.000Z",
-      "syncedAt": "2026-01-26T12:42:22.637Z"
-    },
-    {
-      "id": "test_diary_002",
-      "petId": "test_pet_001",
-      "date": "2026-01-27",
-      "title": "慵懒的午后时光",
-      "content": "今天小猫一直在沙发上睡觉，偶尔翻个身，看起来很平静。下午阳光正好，它蜷成一团，呼噜呼噜的声音特别治愈。",
-      "imagePath": "https://placekitten.com/402/302",
-      "emotion": 2,
-      "imageList": [
-        "https://placekitten.com/402/302"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-27T09:30:00.000Z",
-      "syncedAt": "2026-01-27T10:00:00.000Z"
-    },
-    {
-      "id": "test_diary_003",
-      "petId": "test_pet_001",
-      "date": "2026-01-28",
-      "title": "不开心的看诊日",
-      "content": "今天带小猫去看医生，打了疫苗，它很不开心，一路都在哼唧。回家后躲在角落里不理人，看着让人心疼。",
-      "imagePath": "https://placekitten.com/403/303",
-      "emotion": 3,
-      "imageList": [
-        "https://placekitten.com/403/303"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-28T14:00:00.000Z",
-      "syncedAt": "2026-01-28T15:00:00.000Z"
-    },
-    {
-      "id": "test_diary_004",
-      "petId": "test_pet_001",
-      "date": "2026-01-29",
-      "title": "被吵醒的早晨",
-      "content": "今天早上邻居装修，小猫被吵醒后非常生气，炸毛了好一会儿。后来躲到衣柜里不肯出来，直到中午才慢慢平静下来。",
-      "imagePath": "https://placekitten.com/404/304",
-      "emotion": 4,
-      "imageList": [
-        "https://placekitten.com/404/304"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-29T08:00:00.000Z",
-      "syncedAt": "2026-01-29T09:00:00.000Z"
-    },
-    {
-      "id": "test_diary_005",
-      "petId": "test_pet_001",
-      "date": "2026-01-30",
-      "title": "睡了一整天",
-      "content": "今天下雨，小猫特别嗜睡，从早到晚都在睡觉。换了三个地方睡，沙发、床上、猫窝都轮了一遍。",
-      "imagePath": "https://placekitten.com/405/305",
-      "emotion": 5,
-      "imageList": [
-        "https://placekitten.com/405/305"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-30T11:00:00.000Z",
-      "syncedAt": "2026-01-30T12:00:00.000Z"
-    },
-    {
-      "id": "test_diary_006",
-      "petId": "test_pet_001",
-      "date": "2026-01-31",
-      "title": "对新玩具充满好奇",
-      "content": "今天给小猫买了一个新的逗猫棒，它非常好奇，围着研究了好久。先是用爪子小心翼翼地碰了碰，然后就开始疯狂扑咬。",
-      "imagePath": "https://placekitten.com/406/306",
-      "emotion": 6,
-      "imageList": [
-        "https://placekitten.com/406/306",
-        "https://placekitten.com/407/307"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-31T16:00:00.000Z",
-      "syncedAt": "2026-01-31T17:00:00.000Z"
-    },
-    {
-      "id": "test_diary_007",
-      "petId": "test_pet_002",
-      "date": "2026-01-26",
-      "title": "公园散步真开心",
-      "content": "今天带小白去公园散步，它开心得不得了，一路上摇着尾巴到处嗅。遇到了其他狗狗，友好地互相打了招呼。",
-      "imagePath": "https://placedog.net/400/300",
-      "emotion": 1,
-      "imageList": [
-        "https://placedog.net/400/300"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-26T15:00:00.000Z",
-      "syncedAt": "2026-01-26T16:00:00.000Z"
-    },
-    {
-      "id": "test_diary_008",
-      "petId": "test_pet_002",
-      "date": "2026-01-28",
-      "title": "安静的陪伴时光",
-      "content": "今天在家办公，小白安静地趴在脚边陪我。偶尔抬头看看我，眼神里满是信任和依赖，真是最好的陪伴。",
-      "imagePath": "https://placedog.net/401/301",
-      "emotion": 2,
-      "imageList": [
-        "https://placedog.net/401/301"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-28T10:00:00.000Z",
-      "syncedAt": "2026-01-28T11:00:00.000Z"
-    },
-    {
-      "id": "test_diary_009",
-      "petId": "test_pet_002",
-      "date": "2026-01-30",
-      "title": "洗澡大作战",
-      "content": "今天给小白洗澡，它虽然不太情愿但还是乖乖配合了。洗完后甩了一身水，然后在客厅疯狂打滚烘干自己。",
-      "imagePath": "https://placedog.net/402/302",
-      "emotion": 4,
-      "imageList": [
-        "https://placedog.net/402/302"
-      ],
-      "isLocked": false,
-      "createdAt": "2026-01-30T17:00:00.000Z",
-      "syncedAt": "2026-01-30T18:00:00.000Z"
-    },
     {
       "id": "a50f4515-c282-487a-8f10-856831e85f28",
       "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
@@ -234,11 +188,94 @@
       "imageList": [
         "http://192.168.3.129:3000/uploads/photos/b279d6e7-1d8e-4d82-9f81-6074c2d60d7b.jpg",
         "http://192.168.3.129:3000/uploads/photos/f6e3e0b8-29e2-4b72-83a2-f27d3c7f2b73.jpg",
-        "http://192.168.3.129:3000/uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg"
+        "http://192.168.3.129:3000/uploads/photos/ac1f18c2-f413-44de-ab9d-8601c4b2700b.jpg",
+        "http://192.168.3.129:3000/uploads/photos/8ce9dc28-c31e-4944-9eb4-a236badcee3e.jpg"
       ],
       "isLocked": false,
       "createdAt": "2026-02-04T09:10:21.225Z",
       "syncedAt": "2026-02-04T09:10:21.225Z"
+    },
+    {
+      "id": "7c299cd4-5759-4225-88e3-b527e635e9fe",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/bfe872ea-9379-4f95-a9ee-ffc11d5427b5.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/bfe872ea-9379-4f95-a9ee-ffc11d5427b5.jpg",
+        "http://192.168.3.129:3000/uploads/photos/7341106d-a50e-47d3-994f-241488ecacea.jpg",
+        "http://192.168.3.129:3000/uploads/photos/d7fd421c-bb46-4908-a4c4-72e601ec2d7e.jpg",
+        "http://192.168.3.129:3000/uploads/photos/01f892b0-29a0-4ced-9c25-d7d8f3a6baa3.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-05T14:19:17.750Z",
+      "syncedAt": "2026-02-05T14:19:17.750Z"
+    },
+    {
+      "id": "8536f5b0-511d-467e-a86b-5fed12622b9e",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-27",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/fb310aed-d90a-45c2-b6a7-3f4c2b5fe786.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/fb310aed-d90a-45c2-b6a7-3f4c2b5fe786.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-05T14:19:18.964Z",
+      "syncedAt": "2026-02-05T14:19:18.964Z"
+    },
+    {
+      "id": "0b390487-ab82-47a8-af70-60c94aaff075",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-12",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/b65b34ce-86c9-4271-968e-372e5b778bcf.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/b65b34ce-86c9-4271-968e-372e5b778bcf.jpg",
+        "http://192.168.3.129:3000/uploads/photos/10fef520-98ee-459a-8f67-3d4f10e1fcdc.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-05T14:20:03.514Z",
+      "syncedAt": "2026-02-05T14:20:03.514Z"
+    },
+    {
+      "id": "1a7abee3-e6e0-45cc-8b1b-47b63077927d",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-06",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/00f9b87d-2e02-49cc-a3eb-c7ba68f3a508.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/00f9b87d-2e02-49cc-a3eb-c7ba68f3a508.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-05T14:20:04.115Z",
+      "syncedAt": "2026-02-05T14:20:04.115Z"
+    },
+    {
+      "id": "f5b44df7-92f6-4b76-942a-9a41e3f3eda0",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06",
+      "title": "",
+      "content": "",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/bf6c3bf1-d327-403e-b396-3531d3350777.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/bf6c3bf1-d327-403e-b396-3531d3350777.jpg",
+        "http://192.168.3.129:3000/uploads/photos/076b4aa6-86d2-4657-9f33-385a2df219ea.jpg",
+        "http://192.168.3.129:3000/uploads/photos/89df4fea-3f54-4439-b157-28fe785526bd.jpg",
+        "http://192.168.3.129:3000/uploads/photos/7fe5f70a-2535-4dbb-8bf9-52dd716b8c94.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-06T05:24:09.478Z",
+      "syncedAt": "2026-02-06T05:24:09.478Z"
     }
   ],
   "pet_photos": [
@@ -274,7 +311,209 @@
       "time": "1770196067000",
       "location": null,
       "uploadedAt": "2026-02-04T09:10:21.659Z"
+    },
+    {
+      "id": "7f8b75b4-0bc0-48c7-a893-e370c7fd0406",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05",
+      "assetId": "28CADAE5-3F94-4E23-A1D3-51F64CD804AF/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/bfe872ea-9379-4f95-a9ee-ffc11d5427b5.jpg",
+      "size": 87993,
+      "time": "1770275520000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:17.749Z"
+    },
+    {
+      "id": "6c232b86-cdda-4fb9-99b4-9b328eaf7794",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05",
+      "assetId": "E4FC298D-94B0-47FB-9BA6-BB85D5A2849B/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/7341106d-a50e-47d3-994f-241488ecacea.jpg",
+      "size": 88266,
+      "time": "1770275518000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.153Z"
+    },
+    {
+      "id": "780f1dd1-8f41-4497-8da1-d8d6bd0c6587",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05",
+      "assetId": "6858D5C8-A2F5-46A3-864B-0A5EC2CCBD2D/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/d7fd421c-bb46-4908-a4c4-72e601ec2d7e.jpg",
+      "size": 115447,
+      "time": "1770257259000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.258Z"
+    },
+    {
+      "id": "2c9893d1-5e7b-49a5-8e66-2690e0b82a5f",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-04",
+      "assetId": "DEDA1935-7C4E-46CA-AA5D-5A4CDC519717/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/8ce9dc28-c31e-4944-9eb4-a236badcee3e.jpg",
+      "size": 47708,
+      "time": "1770196835000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.418Z"
+    },
+    {
+      "id": "a13bb7bd-b76d-4eeb-ac5c-86f7494b80d1",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-27",
+      "assetId": "42C66DB2-DD06-4CF2-A211-472465C0A1A0/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/fb310aed-d90a-45c2-b6a7-3f4c2b5fe786.jpg",
+      "size": 113554,
+      "time": "1769478178000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:19:18.964Z"
+    },
+    {
+      "id": "45a41735-904e-4bc0-91fb-d2f6e17e415e",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-12",
+      "assetId": "32733B2B-EF0D-4D60-9726-7717822896EF/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/b65b34ce-86c9-4271-968e-372e5b778bcf.jpg",
+      "size": 122332,
+      "time": "1768222077000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:03.514Z"
+    },
+    {
+      "id": "cc4ccab8-615e-476c-ae0a-7aae66b31596",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-12",
+      "assetId": "8790E94E-0067-468A-898E-527BE816783D/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/10fef520-98ee-459a-8f67-3d4f10e1fcdc.jpg",
+      "size": 88496,
+      "time": "1768221950000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:03.683Z"
+    },
+    {
+      "id": "959901c5-bc7a-4c0e-a366-ec653ba4fa03",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-01-06",
+      "assetId": "ED39D6DE-AA04-4C0D-8CBA-F6F3B73FEC4B/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/00f9b87d-2e02-49cc-a3eb-c7ba68f3a508.jpg",
+      "size": 83313,
+      "time": "1767712781000",
+      "location": null,
+      "uploadedAt": "2026-02-05T14:20:04.114Z"
+    },
+    {
+      "id": "615b19a3-9067-454a-bf10-2760515c0020",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06",
+      "assetId": "F4959C1D-B6E2-413E-8C1C-F8774A0ADA0D/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/bf6c3bf1-d327-403e-b396-3531d3350777.jpg",
+      "size": 131332,
+      "time": "1770355074000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:09.469Z"
+    },
+    {
+      "id": "8ce2e9c1-4b26-4f96-b48e-b6cf1cbd4b25",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06",
+      "assetId": "E64721EF-C129-478F-B0CF-0FD228BF1AA9/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/076b4aa6-86d2-4657-9f33-385a2df219ea.jpg",
+      "size": 106227,
+      "time": "1770355072000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.233Z"
+    },
+    {
+      "id": "3f7e279f-9bb6-4588-bd99-b8a40077b494",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06",
+      "assetId": "0A2B3E3A-8058-4B93-B760-C2BF84564AED/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/89df4fea-3f54-4439-b157-28fe785526bd.jpg",
+      "size": 143293,
+      "time": "1770355063000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.461Z"
+    },
+    {
+      "id": "dadf540b-279b-4494-8c1e-6e9099d8a72f",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06",
+      "assetId": "F19B942D-0014-4BED-9738-1E6057B8C2DA/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/7fe5f70a-2535-4dbb-8bf9-52dd716b8c94.jpg",
+      "size": 77694,
+      "time": "1770355061000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:10.687Z"
+    },
+    {
+      "id": "8513dcc6-20f4-4f1b-b90a-1feff4184a63",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05",
+      "assetId": "EF3C7033-A954-4763-B2DF-A53BF37F45EF/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/01f892b0-29a0-4ced-9c25-d7d8f3a6baa3.jpg",
+      "size": 51122,
+      "time": "1770301226000",
+      "location": null,
+      "uploadedAt": "2026-02-06T05:24:11.323Z"
     }
   ],
-  "users": []
+  "users": [],
+  "emotion_records": [
+    {
+      "id": "1770300320342",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05T22:05:20.342363",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/3D0893C0-D349-43D3-95D1-E9A21925129E/tmp/image_picker_6F90E7CD-AD4F-44B3-A731-381BFD5B3399-12516-000005A5F477F593.jpg",
+      "aiEmotion": "curious",
+      "aiConfidence": 0,
+      "aiFeatures": {
+        "species": "cat",
+        "breed": "宠物",
+        "color": "可爱",
+        "pose": "sitting"
+      },
+      "selectedEmotion": "curious",
+      "stickerUrl": "/private/var/mobile/Containers/Data/Application/3D0893C0-D349-43D3-95D1-E9A21925129E/tmp/image_picker_6F90E7CD-AD4F-44B3-A731-381BFD5B3399-12516-000005A5F477F593.jpg",
+      "createdAt": "2026-02-05T22:05:20.342416",
+      "updatedAt": "2026-02-05T22:05:20.342416",
+      "syncedAt": "2026-02-05T14:05:20.487Z"
+    },
+    {
+      "id": "1770300481543",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-05T22:08:01.543775",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/3D0893C0-D349-43D3-95D1-E9A21925129E/tmp/image_picker_CEE0A68F-F2F6-42B1-8111-5F2BDBEB781A-12516-000005A6DAD3DD5E.jpg",
+      "aiEmotion": "calm",
+      "aiConfidence": 0.8,
+      "aiFeatures": {
+        "species": "cat",
+        "breed": "Domestic Shorthair",
+        "color": "white",
+        "pose": "Sitting upright"
+      },
+      "selectedEmotion": "calm",
+      "stickerUrl": "https://ark-content-generation-v2-cn-beijing.tos-cn-beijing.volces.com/doubao-seedream-4-5/0217703004509241f51aa5cce9f53822ad57dd790c8a0b692f0a4_0.jpeg?X-Tos-Algorithm=TOS4-HMAC-SHA256&X-Tos-Credential=AKLTYWJkZTExNjA1ZDUyNDc3YzhjNTM5OGIyNjBhNDcyOTQ%2F20260205%2Fcn-beijing%2Ftos%2Frequest&X-Tos-Date=20260205T140744Z&X-Tos-Expires=86400&X-Tos-Signature=9c9a01bfdda9ab4d28b027e45a87d71717477e7cc98c582eea00d4f76f70b2e5&X-Tos-SignedHeaders=host",
+      "createdAt": "2026-02-05T22:08:01.543783",
+      "updatedAt": "2026-02-05T22:08:01.543784",
+      "syncedAt": "2026-02-05T14:08:01.716Z"
+    },
+    {
+      "id": "1770361017880",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-06T14:56:57.880638",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/FAD6F4F9-A913-4CB1-9407-C9CA1F7D7BDA/tmp/image_picker_59924835-403C-44CD-A976-C20571943936-16498-000006F92A7B80BD.jpg",
+      "aiEmotion": "calm",
+      "aiConfidence": 0.8,
+      "aiFeatures": {
+        "species": "dog",
+        "breed": "Border Collie",
+        "color": "white",
+        "pose": "Laying down with head resting"
+      },
+      "selectedEmotion": "calm",
+      "stickerUrl": "https://ark-content-generation-v2-cn-beijing.tos-cn-beijing.volces.com/doubao-seedream-4-5/0217703609963738c115a23d7d04490da5d7d9d1ebb294c73594c_0.jpeg?X-Tos-Algorithm=TOS4-HMAC-SHA256&X-Tos-Credential=AKLTYWJkZTExNjA1ZDUyNDc3YzhjNTM5OGIyNjBhNDcyOTQ%2F20260206%2Fcn-beijing%2Ftos%2Frequest&X-Tos-Date=20260206T065653Z&X-Tos-Expires=86400&X-Tos-Signature=399555de01d3fccd923d7e5c2ed6968219546199a4b32f6ad1f828b3cbae4c95&X-Tos-SignedHeaders=host",
+      "createdAt": "2026-02-06T14:56:57.880681",
+      "updatedAt": "2026-02-06T14:56:57.880681",
+      "syncedAt": "2026-02-06T06:56:58.014Z"
+    }
+  ]
 }

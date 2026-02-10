@@ -240,10 +240,10 @@ class ApiProfileService implements ProfileService {
       }
     } on SocketException catch (e) {
       debugPrint('[API] ❌ 网络连接失败: $e');
-      return null; // 离线时返回null
+      throw Exception('网络连接失败');
     } catch (e) {
       debugPrint('[API] ❌ 获取失败: $e');
-      return null;
+      rethrow;
     }
   }
 

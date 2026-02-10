@@ -48,4 +48,10 @@ class PetRepository {
     await prefs.setString(_key, json.encode(pet.toJson()));
   }
 
+  /// 清除当前宠物
+  Future<void> clearPet() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
+
 }

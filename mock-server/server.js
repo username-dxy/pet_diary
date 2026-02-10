@@ -238,6 +238,7 @@ app.get('/', (req, res) => {
         'POST /api/chongyu/diaries': '创建日记',
         'GET /api/chongyu/diaries': '获取日记列表',
         'GET /api/chongyu/diaries/:diaryId': '获取日记详情',
+        'POST /api/chongyu/emotions/save': '保存情绪记录',
         'GET /api/chongyu/stats': '获取服务器统计信息',
         'POST /api/chongyu/ai/sticker/generate': '生成贴纸（AI 管线）'
       }
@@ -823,6 +824,45 @@ app.get('/api/chongyu/diaries/:diaryId', (req, res) => {
   }
 });
 
+// ==================== 情绪记录 API (chongyu) ====================
+
+// 保存情绪记录（upsert）
+app.post('/api/chongyu/emotions/save', (req, res) => {
+  if (VERBOSE) console.log('🎭 收到情绪记录保存请求:', req.body);
+
+  // 确保 emotion_records 集合存在
+  if (!database.emotion_records) {
+    database.emotion_records = [];
+  }
+
+  const record = req.body;
+  if (!record.id) {
+    return res.status(400).json(errorResponse('缺少 id 字段', 400));
+  }
+
+  const existingIndex = database.emotion_records.findIndex(r => r.id === record.id);
+  if (existingIndex >= 0) {
+    database.emotion_records[existingIndex] = {
+      ...record,
+      syncedAt: new Date().toISOString()
+    };
+    console.log('🎭 更新情绪记录:', record.id);
+  } else {
+    database.emotion_records.push({
+      ...record,
+      syncedAt: new Date().toISOString()
+    });
+    console.log('🎭 创建情绪记录:', record.id);
+  }
+
+  saveDatabase();
+
+  res.json(successResponse({
+    recordId: record.id,
+    syncedAt: new Date().toISOString()
+  }));
+});
+
 // ==================== 统计 API (chongyu) ====================
 
 // 获取服务器统计信息
@@ -834,6 +874,7 @@ app.get('/api/chongyu/stats', (req, res) => {
       photos: database.photos.length,
       pet_photos: (database.pet_photos || []).length,
       diaries: database.diaries.length,
+      emotion_records: (database.emotion_records || []).length,
       users: database.users.length,
       uptime: process.uptime(),
       memory: process.memoryUsage()
@@ -863,6 +904,7 @@ app.listen(PORT, HOST, () => {
   console.log(`   照片: ${database.photos.length}`);
   console.log(`   宠物照片: ${(database.pet_photos || []).length}`);
   console.log(`   日记: ${database.diaries.length}`);
+  console.log(`   情绪记录: ${(database.emotion_records || []).length}`);
   console.log('');
   console.log('🤖 AI 配置:');
   console.log(`   贴纸供应商: ${STICKER_IMAGE_PROVIDER}`);
@@ -885,6 +927,7 @@ app.listen(PORT, HOST, () => {
   console.log('   [chongyu] POST /api/chongyu/upload/photo - 上传照片');
   console.log('   [chongyu] POST /api/chongyu/diaries - 创建日记');
   console.log('   [chongyu] GET  /api/chongyu/diaries - 获取日记列表');
+  console.log('   [chongyu] POST /api/chongyu/emotions/save - 保存情绪记录');
   console.log('   [chongyu] GET  /api/chongyu/stats - 查看统计信息');
   console.log('   [chongyu] POST /api/chongyu/ai/sticker/generate - 生成贴纸');
   console.log('');
