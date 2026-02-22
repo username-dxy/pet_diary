@@ -9,7 +9,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-const { generateStickerPipeline } = require('./services/ai');
+const { generateStickerPipeline, generateDiary } = require('./services/ai');
 
 const app = express();
 
@@ -240,7 +240,9 @@ app.get('/', (req, res) => {
         'GET /api/chongyu/diaries/:diaryId': '获取日记详情',
         'POST /api/chongyu/emotions/save': '保存情绪记录',
         'GET /api/chongyu/stats': '获取服务器统计信息',
-        'POST /api/chongyu/ai/sticker/generate': '生成贴纸（AI 管线）'
+        'POST /api/chongyu/ai/sticker/generate': '生成贴纸（AI 管线）',
+        'POST /api/chongyu/ai/diary/generate': '生成日记文字（AI 管线）',
+        'POST /api/chongyu/ai/diary/auto-generate': '基于已上传照片自动生成日记'
       }
     }
   });
@@ -300,6 +302,188 @@ app.post('/api/chongyu/ai/sticker/generate', upload.single('image'), async (req,
     };
 
     res.json(successResponse(fallback));
+  }
+});
+
+// 生成日记文字（AI 管线）
+app.post('/api/chongyu/ai/diary/generate', upload.array('images', 10), async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json(errorResponse('未接收到图片文件', 400));
+  }
+
+  try {
+    // 解析宠物信息
+    const petJson = req.body.pet;
+    if (!petJson) {
+      return res.status(400).json(errorResponse('缺少 pet 参数', 400));
+    }
+
+    let pet;
+    try {
+      pet = typeof petJson === 'string' ? JSON.parse(petJson) : petJson;
+    } catch (e) {
+      return res.status(400).json(errorResponse('pet 参数格式错误', 400));
+    }
+
+    const date = req.body.date || new Date().toISOString().split('T')[0];
+
+    // 解析同主人的其他宠物（可选）
+    let otherPets = [];
+    if (req.body.otherPets) {
+      try {
+        otherPets = typeof req.body.otherPets === 'string'
+          ? JSON.parse(req.body.otherPets)
+          : req.body.otherPets;
+      } catch (e) {
+        // 忽略解析错误
+      }
+    }
+
+    if (VERBOSE) {
+      console.log('📖 [DiaryGen] 开始生成日记');
+      console.log(`   宠物: ${pet.name} (${pet.id})`);
+      console.log(`   日期: ${date}`);
+      console.log(`   图片数量: ${req.files.length}`);
+      console.log(`   其他宠物: ${otherPets.length} 只`);
+    }
+
+    const imagePaths = req.files.map(f => f.path);
+
+    const result = await generateDiary({
+      imagePaths,
+      pet,
+      date,
+      otherPets
+    });
+
+    if (VERBOSE) {
+      console.log(`✅ [DiaryGen] 日记生成成功，长度: ${result.content.length} 字符`);
+    }
+
+    res.json(successResponse(result));
+  } catch (error) {
+    console.error('❌ AI 日记生成失败:', error);
+    res.status(500).json(errorResponse(error.message || 'AI 日记生成失败', 500));
+  }
+});
+
+// 自动生成某天日记（使用服务端已上传照片）
+app.post('/api/chongyu/ai/diary/auto-generate', async (req, res) => {
+  try {
+    const petId = req.body.petId;
+    const date = req.body.date || new Date().toISOString().split('T')[0];
+
+    if (!petId) {
+      return res.status(400).json(errorResponse('缺少 petId 参数', 400));
+    }
+
+    const pet = database.pets.find(p => p.id === petId);
+    if (!pet) {
+      return res.status(404).json(errorResponse('宠物不存在', 404));
+    }
+
+    if (!database.pet_photos) {
+      database.pet_photos = [];
+    }
+
+    const dayPhotos = database.pet_photos.filter(p => p.petId === petId && p.date === date);
+    if (dayPhotos.length === 0) {
+      return res.json(successResponse({
+        generated: false,
+        reason: 'NO_PHOTOS',
+        date
+      }));
+    }
+
+    const existingDiary = database.diaries.find(d => d.petId === petId && d.date === date);
+    if (existingDiary && existingDiary.content && existingDiary.content.trim()) {
+      return res.json(successResponse({
+        generated: false,
+        reason: 'ALREADY_GENERATED',
+        diaryId: existingDiary.id,
+        contentLength: existingDiary.content.length,
+        date
+      }));
+    }
+
+    const imagePaths = dayPhotos
+      .map(photo => {
+        if (photo.localPath && fs.existsSync(photo.localPath)) {
+          return photo.localPath;
+        }
+        const photoUrl = String(photo.url || '');
+        const marker = '/uploads/';
+        const markerIndex = photoUrl.indexOf(marker);
+        if (markerIndex < 0) return null;
+        const relative = photoUrl.substring(markerIndex + 1);
+        const diskPath = path.join(__dirname, relative);
+        if (fs.existsSync(diskPath)) return diskPath;
+        return null;
+      })
+      .filter(Boolean);
+
+    if (imagePaths.length === 0) {
+      return res.json(successResponse({
+        generated: false,
+        reason: 'NO_LOCAL_IMAGES',
+        date
+      }));
+    }
+
+    const otherPets = database.pets
+      .filter(p => p.id !== petId)
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        species: p.species
+      }));
+
+    const generated = await generateDiary({
+      imagePaths,
+      pet,
+      date,
+      otherPets
+    });
+
+    const imageList = dayPhotos
+      .map(p => p.url)
+      .filter(Boolean);
+    const imagePath = imageList[0] || '';
+
+    if (existingDiary) {
+      existingDiary.content = generated.content || existingDiary.content;
+      existingDiary.title = existingDiary.title || '';
+      existingDiary.imagePath = existingDiary.imagePath || imagePath;
+      existingDiary.imageList = imageList.length > 0 ? imageList : (existingDiary.imageList || []);
+      existingDiary.syncedAt = new Date().toISOString();
+    } else {
+      database.diaries.push({
+        id: uuidv4(),
+        petId,
+        date,
+        title: '',
+        content: generated.content || '',
+        imagePath,
+        emotion: 0,
+        imageList,
+        isLocked: false,
+        createdAt: new Date().toISOString(),
+        syncedAt: new Date().toISOString()
+      });
+    }
+
+    saveDatabase();
+
+    const diary = database.diaries.find(d => d.petId === petId && d.date === date);
+    return res.json(successResponse({
+      generated: true,
+      diaryId: diary?.id || '',
+      contentLength: (diary?.content || '').length,
+      date
+    }));
+  } catch (error) {
+    console.error('❌ 自动生成日记失败:', error);
+    return res.status(500).json(errorResponse(error.message || '自动生成日记失败', 500));
   }
 });
 
@@ -420,6 +604,7 @@ app.post('/api/chongyu/image/list/upload', upload.array('image', 20), (req, res)
       date: date,
       assetId: assetId,
       url: url,
+      localPath: file.path,
       size: file.size,
       time: time,
       location: location,
@@ -930,6 +1115,7 @@ app.listen(PORT, HOST, () => {
   console.log('   [chongyu] POST /api/chongyu/emotions/save - 保存情绪记录');
   console.log('   [chongyu] GET  /api/chongyu/stats - 查看统计信息');
   console.log('   [chongyu] POST /api/chongyu/ai/sticker/generate - 生成贴纸');
+  console.log('   [chongyu] POST /api/chongyu/ai/diary/generate - 生成日记文字');
   console.log('');
   console.log('⚙️  配置:');
   console.log(`   数据库文件: ${DB_FILE_NAME}`);

@@ -217,6 +217,7 @@ class HomeViewModel extends ChangeNotifier {
       debugPrint('📤 [HomeScan] ==================');
       int totalUploaded = 0;
       int dayIndex = 0;
+      bool stoppedByServerLimit = false;
       for (final entry in byDay.entries) {
         dayIndex++;
         debugPrint('📤 [HomeScan] 上传第 $dayIndex/${byDay.length} 天');
@@ -228,11 +229,20 @@ class HomeViewModel extends ChangeNotifier {
         _scanTotal = byDay.length;
         notifyListeners();
 
-        final count = await _uploadService.compressAndUpload(
-          petId: _currentPet!.id,
-          date: entry.key,
-          results: entry.value,
-        );
+        int count = 0;
+        try {
+          count = await _uploadService.compressAndUpload(
+            petId: _currentPet!.id,
+            date: entry.key,
+            results: entry.value,
+          );
+        } on ServerHitLimitException catch (e) {
+          stoppedByServerLimit = true;
+          _scanStatus = '服务端上传限制已触发，稍后重试';
+          notifyListeners();
+          debugPrint('⚠️ [HomeScan] 服务端 hit limit（非客户端 AI 配额）: ${e.message}');
+          break;
+        }
         totalUploaded += count;
         debugPrint('✅ [HomeScan] ${entry.key} 上传完成: $count/${entry.value.length} 张');
       }
@@ -241,7 +251,9 @@ class HomeViewModel extends ChangeNotifier {
       debugPrint('🎉 [HomeScan] 上传完成!');
       debugPrint('🎉 [HomeScan] 总计: $totalUploaded 张照片');
       debugPrint('🎉 [HomeScan] ==================');
-      _scanStatus = '上传完成，共 $totalUploaded 张';
+      _scanStatus = stoppedByServerLimit
+          ? '触发服务端上传限制，已上传 $totalUploaded 张'
+          : '上传完成，共 $totalUploaded 张';
       notifyListeners();
 
       // Brief delay to show the completion message

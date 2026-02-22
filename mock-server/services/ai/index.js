@@ -1,6 +1,7 @@
 const { analyzeEmotion } = require('./emotionAnalyzer');
 const { buildStickerPrompt } = require('./stickerPromptBuilder');
 const { generateStickerImage } = require('./stickerGenerator');
+const { generateDiary } = require('./diaryGenerator');
 
 async function generateStickerPipeline({ imagePath, host, protocol }) {
   // Step 1: 情绪 & 特征识别
@@ -33,5 +34,6 @@ async function generateStickerPipeline({ imagePath, host, protocol }) {
 }
 
 module.exports = {
-  generateStickerPipeline
+  generateStickerPipeline,
+  generateDiary
 };

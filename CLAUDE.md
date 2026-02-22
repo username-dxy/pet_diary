@@ -153,6 +153,32 @@ Three-step flow in calendar screen:
 2. **FeatureExtractionService** — photo → `PetFeatures` (species, breed, color, pose)
 3. **StickerGenerationService** — photo + emotion + features → sticker image
 
+### AI Diary Generation Pipeline
+
+Server-side AI generates diary text from photos:
+
+```
+DiaryGenerationService.generateSmart()
+    │ checks QuotaService.canGenerateAI()
+    ├── quota exhausted → returns error, UI shows upgrade prompt
+    │
+    ├── POST /api/chongyu/ai/diary/generate
+    │   fields: pet (JSON), date, otherPets (JSON)
+    │   files: images[]
+    │   ▼
+    │   Server: Gemini Vision API → diary content + mentionedAnimals
+    │   ▼
+    │   DiaryGenerationResult(content, isAiGenerated=true)
+    │
+    └── AI fails (non-quota error) → fallback to local template
+```
+
+Key services:
+- **`lib/domain/services/diary_generation_service.dart`** — `generateSmart()` tries AI, falls back to templates; error code `403` = quota exhausted
+- **`lib/domain/services/quota_service.dart`** — checks/records AI usage, premium bypasses quota
+- **`lib/domain/services/membership_service.dart`** — premium membership status
+- **`lib/data/repositories/quota_repository.dart`** — persists quota usage to SharedPreferences
+
 ### Emotion System
 
 `Emotion` enum in `asset_manager.dart`: `happy`, `calm`, `sad`, `angry`, `sleepy`, `curious`. Each has emoji, localized name, sticker. `AssetManager` is a singleton (`AssetManager.instance`).
@@ -165,6 +191,7 @@ Three-step flow in calendar screen:
 | EmotionRepository | `'emotion_records'` |
 | DiaryRepository | `'diary_entries'` |
 | AppPhotoRepository | `'app_photos'` |
+| QuotaRepository | `'quota_status'` |
 
 ## Mock Server
 
@@ -183,6 +210,7 @@ Key endpoints:
 - `GET /api/chongyu/pet/photos?petId=&date=` — query pet photos by petId and optional date
 - `GET /api/chongyu/pet/detail?petId=&diaryId=` — diary detail with dynamically built `imageList`
 - `POST /api/chongyu/ai/sticker/generate` — AI emotion analysis + sticker generation (requires GEMINI_API_KEY in `.env`)
+- `POST /api/chongyu/ai/diary/generate` — AI diary generation from photos (requires GEMINI_API_KEY in `.env`)
 
 Test with: `curl -H "token: test123" http://localhost:3000/api/chongyu/pet/list`
 
@@ -221,7 +249,7 @@ All key flows include structured debug logs with emoji prefixes for easy filteri
 - `🌐 [ApiClient]` — HTTP requests with fields/files count
 - `📥 [ApiClient]` — HTTP responses with status
 
-**Filter logs**: `flutter run | grep "HomeScan"` or `flutter run | grep "❌"` for errors.
+**Filter logs**: `flutter run 2>&1 | grep "HomeScan"` or `flutter run 2>&1 | grep "❌"` for errors.
 
 **Full guide**: See `CLIENT_DEBUG_LOG_GUIDE.md` for detailed debugging instructions.
 

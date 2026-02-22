@@ -5,6 +5,7 @@ import 'package:pet_diary/presentation/screens/diary/widgets/diary_page_widget.d
 import 'package:pet_diary/presentation/screens/diary/widgets/diary_empty_state_widget.dart';
 import 'package:pet_diary/presentation/screens/diary/widgets/diary_password_dialog.dart';
 import 'package:pet_diary/domain/services/diary_password_service.dart';
+import 'package:pet_diary/presentation/widgets/upgrade_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DiaryScreen extends StatefulWidget {
@@ -97,9 +98,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
     if (!_isVerified) {
       // 密码未验证，显示空白页
-      return Scaffold(
-        backgroundColor: const Color(0xFFF5E6D3),
-        body: const Center(),
+      return const Scaffold(
+        backgroundColor: Color(0xFFF5E6D3),
+        body: Center(),
       );
     }
 
@@ -199,7 +200,11 @@ class _DiaryScreenContent extends StatelessWidget {
           onPageChanged: (index) => viewModel.jumpToIndex(index),
           itemBuilder: (context, index) {
             final entry = viewModel.entries[index];
-            return DiaryPageWidget(entry: entry);
+            return DiaryPageWidget(
+              entry: entry,
+              petName: viewModel.currentPet?.name ?? 'TA',
+              onUpgradeTap: () => UpgradeDialog.show(context),
+            );
           },
         ),
 

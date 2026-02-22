@@ -5,10 +5,14 @@ import 'package:pet_diary/data/models/diary_entry.dart';
 /// 单页日记展示（图文格式）
 class DiaryPageWidget extends StatelessWidget {
   final DiaryEntry entry;
+  final String petName;
+  final VoidCallback? onUpgradeTap;
 
   const DiaryPageWidget({
     super.key,
     required this.entry,
+    required this.petName,
+    this.onUpgradeTap,
   });
 
   @override
@@ -52,51 +56,62 @@ class DiaryPageWidget extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 配图（多照片或单照片）
-                    _buildDiaryImages(),
-
-                    const SizedBox(height: 20),
-
-                    // 日记正文
-                    if (entry.content.isNotEmpty)
-                      Text(
-                        entry.content,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          height: 1.8,
-                          color: Color(0xFF333333),
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                  ],
-                ),
+                child: entry.isLocked ? _buildLockedState() : _buildContent(),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // 底部装饰
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: const Color(0xFFD2B48C).withValues(alpha: 0.5),
-                    width: 1,
-                  ),
-                ),
+  Widget _buildContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 配图（多照片或单照片）
+        _buildDiaryImages(),
+        const SizedBox(height: 20),
+        if (entry.content.isNotEmpty)
+          Text(
+            entry.content,
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.8,
+              color: Color(0xFF333333),
+              letterSpacing: 0.5,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildLockedState() {
+    return SizedBox(
+      height: 400,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.lock_outline, size: 56, color: Colors.brown[300]),
+            const SizedBox(height: 14),
+            Text(
+              '升级至会员可“偷看”更多$petName的日记',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6D4C41),
               ),
-              child: Center(
-                child: Text(
-                  '第 ${entry.date.day} 页',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+            ),
+            const SizedBox(height: 18),
+            ElevatedButton(
+              onPressed: onUpgradeTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFB74D),
+                foregroundColor: Colors.white,
               ),
+              child: const Text('升级会员'),
             ),
           ],
         ),

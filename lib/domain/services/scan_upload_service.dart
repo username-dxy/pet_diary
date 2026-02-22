@@ -4,6 +4,15 @@ import 'package:pet_diary/data/data_sources/remote/image_api_service.dart';
 import 'package:pet_diary/data/models/scan_result.dart';
 import 'package:pet_diary/domain/services/photo_compression_service.dart';
 
+class ServerHitLimitException implements Exception {
+  final String message;
+
+  const ServerHitLimitException(this.message);
+
+  @override
+  String toString() => 'ServerHitLimitException: $message';
+}
+
 /// Orchestrates scan result aggregation, compression, and upload
 class ScanUploadService {
   final PhotoCompressionService _compressionService;
@@ -78,9 +87,14 @@ class ScanUploadService {
             debugPrint('   ⚠️  检测到重复');
           }
         } else {
+          if (_isHitLimitError(response.errorMessage)) {
+            throw ServerHitLimitException(response.errorMessage);
+          }
           debugPrint(
               '   ❌ 上传失败: ${result.assetId} - ${response.errorMessage}');
         }
+      } on ServerHitLimitException {
+        rethrow;
       } catch (e) {
         debugPrint('   ❌ 处理错误: ${result.assetId} - $e');
       }
@@ -94,6 +108,14 @@ class ScanUploadService {
     }
 
     return uploaded;
+  }
+
+  bool _isHitLimitError(String? message) {
+    if (message == null || message.isEmpty) return false;
+    final normalized = message.toLowerCase();
+    return normalized.contains('hit limit') ||
+        normalized.contains('quota') ||
+        normalized.contains('次数已用完');
   }
 
   String? _formatLocation(double? lat, double? lng) {

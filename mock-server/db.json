@@ -174,6 +174,26 @@
       "time": "1770301226000",
       "location": null,
       "uploadedAt": "2026-02-06T05:24:11.323Z"
+    },
+    {
+      "id": "5f1a6e74-0bc5-49db-8e2c-bed6f413b847",
+      "url": "http://192.168.3.129:3000/uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+      "localPath": "uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+      "size": 84273,
+      "mimeType": "application/octet-stream",
+      "time": "1770791419000",
+      "location": null,
+      "uploadedAt": "2026-02-12T05:27:16.265Z"
+    },
+    {
+      "id": "765fdf60-54c6-4d75-a1dc-60fecda800ec",
+      "url": "http://192.168.3.129:3000/uploads/photos/396cfd7b-5536-4ec2-b11e-7ad88fb45ea5.jpg",
+      "localPath": "uploads/photos/396cfd7b-5536-4ec2-b11e-7ad88fb45ea5.jpg",
+      "size": 94278,
+      "mimeType": "application/octet-stream",
+      "time": "1770791410000",
+      "location": null,
+      "uploadedAt": "2026-02-12T05:27:16.409Z"
     }
   ],
   "diaries": [
@@ -276,6 +296,22 @@
       "isLocked": false,
       "createdAt": "2026-02-06T05:24:09.478Z",
       "syncedAt": "2026-02-06T05:24:09.478Z"
+    },
+    {
+      "id": "a90f12a0-4461-4a1d-bdbc-d9d3426d03a3",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-11",
+      "title": "",
+      "content": "2026年2月11日 星期六\n\n喵呜~今天又是超有趣的一天！我和我的姐妹花花一起玩耍啦。我们占领了家里高高的柜子，那是我们的秘密基地！\n\n我蹲在柜子左边，花花站在右边，感觉自己像个小勇士，守护着这个“领地”呢。我时不时摇摇尾巴，花花也睁着大眼睛，警惕地观察着周围。\n\n后来我有点好奇，就凑到镜头前，想看看主人在干啥。哎呀，主人就给我拍了一张超近的照片，我都能看到自己的大鼻子啦，哈哈。\n\n我和花花在柜子上玩了好久，互相闻闻对方，还舔了舔自己的毛，把自己打理得帅帅的。和姐妹一起玩耍的时光真是太开心啦，我喜欢和花花一起探索家里的每个角落，发现新的乐趣。\n\n希望明天也能这么好玩，喵呜~ ",
+      "imagePath": "http://192.168.3.129:3000/uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+      "emotion": 0,
+      "imageList": [
+        "http://192.168.3.129:3000/uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+        "http://192.168.3.129:3000/uploads/photos/396cfd7b-5536-4ec2-b11e-7ad88fb45ea5.jpg"
+      ],
+      "isLocked": false,
+      "createdAt": "2026-02-12T05:27:16.265Z",
+      "syncedAt": "2026-02-12T05:27:47.262Z"
     }
   ],
   "pet_photos": [
@@ -454,6 +490,30 @@
       "time": "1770301226000",
       "location": null,
       "uploadedAt": "2026-02-06T05:24:11.323Z"
+    },
+    {
+      "id": "5f1a6e74-0bc5-49db-8e2c-bed6f413b847",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-11",
+      "assetId": "E4847553-E990-4C97-8966-19365401E334/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+      "localPath": "uploads/photos/12028bd8-e066-4c15-ba15-32cf280bcf38.jpg",
+      "size": 84273,
+      "time": "1770791419000",
+      "location": null,
+      "uploadedAt": "2026-02-12T05:27:16.265Z"
+    },
+    {
+      "id": "765fdf60-54c6-4d75-a1dc-60fecda800ec",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-11",
+      "assetId": "9EA646A7-CF6D-493D-A526-741165B75049/L0/001",
+      "url": "http://192.168.3.129:3000/uploads/photos/396cfd7b-5536-4ec2-b11e-7ad88fb45ea5.jpg",
+      "localPath": "uploads/photos/396cfd7b-5536-4ec2-b11e-7ad88fb45ea5.jpg",
+      "size": 94278,
+      "time": "1770791410000",
+      "location": null,
+      "uploadedAt": "2026-02-12T05:27:16.409Z"
     }
   ],
   "users": [],
@@ -514,6 +574,44 @@
       "createdAt": "2026-02-06T14:56:57.880681",
       "updatedAt": "2026-02-06T14:56:57.880681",
       "syncedAt": "2026-02-06T06:56:58.014Z"
+    },
+    {
+      "id": "1770736183258",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-10T23:09:43.259002",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/549EF9A1-BD17-423B-BB56-BC6BD30FA760/tmp/image_picker_406615C7-FB98-4C19-A141-7458735D7531-35711-00000F29963732DD.jpg",
+      "aiEmotion": "calm",
+      "aiConfidence": 0.7,
+      "aiFeatures": {
+        "species": "dog",
+        "breed": "Australian Shepherd",
+        "color": "white",
+        "pose": "Sitting"
+      },
+      "selectedEmotion": "calm",
+      "stickerUrl": "https://ark-content-generation-v2-cn-beijing.tos-cn-beijing.volces.com/doubao-seedream-4-5/021770736164091d1ad6c481f637d0dfee07f98f23bb2e389dc57_0.jpeg?X-Tos-Algorithm=TOS4-HMAC-SHA256&X-Tos-Credential=AKLTYWJkZTExNjA1ZDUyNDc3YzhjNTM5OGIyNjBhNDcyOTQ%2F20260210%2Fcn-beijing%2Ftos%2Frequest&X-Tos-Date=20260210T150938Z&X-Tos-Expires=86400&X-Tos-Signature=421583e8c99e2362ad9a2bea3e6c8e9eb6c1b6ebc07f0a09ce09f412ebf54ff5&X-Tos-SignedHeaders=host",
+      "createdAt": "2026-02-10T23:09:43.259048",
+      "updatedAt": "2026-02-10T23:09:43.259048",
+      "syncedAt": "2026-02-10T15:09:43.557Z"
+    },
+    {
+      "id": "1770874171828",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-12T13:29:31.828726",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/B2673577-4920-4904-A7AB-77C023F554A7/tmp/image_picker_7D1846BF-5C7E-4836-8CF0-322E45AF32B5-44013-0000122C8FCF77E0.jpg",
+      "aiEmotion": "curious",
+      "aiConfidence": 0.8,
+      "aiFeatures": {
+        "species": "cat",
+        "breed": "Calico",
+        "color": "Black",
+        "pose": "Upright, looking directly at the camera"
+      },
+      "selectedEmotion": "curious",
+      "stickerUrl": "https://ark-content-generation-v2-cn-beijing.tos-cn-beijing.volces.com/doubao-seedream-4-5/021770874136439a95af52a08104de4a8c47a7f302f74a0838cf4_0.jpeg?X-Tos-Algorithm=TOS4-HMAC-SHA256&X-Tos-Credential=AKLTYWJkZTExNjA1ZDUyNDc3YzhjNTM5OGIyNjBhNDcyOTQ%2F20260212%2Fcn-beijing%2Ftos%2Frequest&X-Tos-Date=20260212T052912Z&X-Tos-Expires=86400&X-Tos-Signature=5decbaa115137db8aecb113dd414746c634c039f8c9ca445b41e6a9d3ba3a410&X-Tos-SignedHeaders=host",
+      "createdAt": "2026-02-12T13:29:31.828788",
+      "updatedAt": "2026-02-12T13:29:31.828788",
+      "syncedAt": "2026-02-12T05:29:31.802Z"
     }
   ]
 }
