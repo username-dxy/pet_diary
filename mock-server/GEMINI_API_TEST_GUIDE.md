@@ -131,7 +131,7 @@ curl -X POST "http://192.168.3.129:3000/api/chongyu/ai/sticker/generate" \
 
 ```bash
 # Gemini API 配置
-GEMINI_API_KEY=AIzaSyCrY7U4lBK9HQ2Luj8NsnmytbaLQE6EWb4
+GEMINI_API_KEY=your key
 GEMINI_MODEL=gemini-2.5-flash-image
 GEMINI_IMAGE_MODEL=gemini-2.5-flash-image
 ```
