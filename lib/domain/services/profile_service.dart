@@ -111,7 +111,7 @@ class ApiProfileService implements ProfileService {
           .post(
             Uri.parse('$baseUrl/api/chongyu/pets/profile'),
             headers: headers,
-            body: jsonEncode(pet.toJson()),
+            body: jsonEncode(_toProfilePayload(pet)),
           )
           .timeout(Duration(seconds: ApiConfig.timeoutSeconds));
 
@@ -153,6 +153,32 @@ class ApiProfileService implements ProfileService {
         message: '同步失败: $e',
       );
     }
+  }
+
+  Map<String, dynamic> _toProfilePayload(Pet pet) {
+    int type = 0;
+    if (pet.species == 'dog') type = 1;
+    if (pet.species == 'cat') type = 2;
+
+    int gender = 0;
+    if (pet.gender == PetGender.male) {
+      gender = 1;
+    } else if (pet.gender == PetGender.female) {
+      gender = 2;
+    }
+
+    return {
+      'id': pet.id,
+      'name': pet.name,
+      'type': type,
+      'breed': pet.breed,
+      'profilePhotoPath': pet.profilePhotoPath,
+      'birthday': pet.birthday?.toIso8601String(),
+      'ownerNickname': pet.ownerNickname,
+      'gender': gender,
+      'personality': pet.personality?.name,
+      'createdAt': pet.createdAt.toIso8601String(),
+    };
   }
 
   @override

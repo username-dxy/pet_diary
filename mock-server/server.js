@@ -125,6 +125,72 @@ function errorResponse(message, code) {
   return { success: false, error: { message, code } };
 }
 
+function shouldLogHttp() {
+  return ['debug', 'info'].includes(String(LOG_LEVEL).toLowerCase());
+}
+
+function summarizePayload(payload, maxLen = 600) {
+  if (payload === undefined || payload === null) return String(payload);
+
+  let text = '';
+  if (Buffer.isBuffer(payload)) {
+    text = `<Buffer length=${payload.length}>`;
+  } else if (typeof payload === 'string') {
+    text = payload;
+  } else {
+    try {
+      text = JSON.stringify(payload);
+    } catch (_) {
+      text = '[Unserializable payload]';
+    }
+  }
+
+  if (text.length <= maxLen) return text;
+  return `${text.slice(0, maxLen)}... [truncated ${text.length - maxLen} chars]`;
+}
+
+function httpLogger(req, res, next) {
+  if (!shouldLogHttp()) {
+    return next();
+  }
+
+  const start = Date.now();
+  const queryText =
+    req.query && Object.keys(req.query).length > 0
+      ? ` query=${summarizePayload(req.query, 240)}`
+      : '';
+  const bodyText =
+    req.body && Object.keys(req.body).length > 0
+      ? ` body=${summarizePayload(req.body, 300)}`
+      : '';
+  console.log(`[HTTP] -> ${req.method} ${req.originalUrl}${queryText}${bodyText}`);
+
+  let responseBody;
+  const originalJson = res.json.bind(res);
+  const originalSend = res.send.bind(res);
+
+  res.json = function patchedJson(body) {
+    responseBody = body;
+    return originalJson(body);
+  };
+
+  res.send = function patchedSend(body) {
+    responseBody = body;
+    return originalSend(body);
+  };
+
+  res.on('finish', () => {
+    const cost = Date.now() - start;
+    const responseText =
+      responseBody === undefined ? '' : ` body=${summarizePayload(responseBody, 600)}`;
+    console.log(
+      `[HTTP] <- ${req.method} ${req.originalUrl} ${res.statusCode} ${cost}ms${responseText}`
+    );
+  });
+
+  next();
+}
+
 function normalizeUrl(req, url) {
   if (!url) return url;
   const host = req.get('host') || `localhost:${PORT}`;
@@ -145,6 +211,15 @@ function normalizeUrl(req, url) {
   return `${protocol}://${host}/${url}`;
 }
 
+function normalizeMediaUrl(req, url) {
+  if (!url) return url;
+  if (typeof url !== 'string') return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return normalizeUrl(req, url);
+}
+
 function normalizeDiaryList(req, diaries) {
   return diaries.map(d => ({
     ...d,
@@ -155,49 +230,88 @@ function normalizeDiaryList(req, diaries) {
   }));
 }
 
+function toPetType(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value === 1 || value === 2 ? value : 0;
+  }
+  const v = String(value || '').toLowerCase();
+  if (v === 'dog') return 1;
+  if (v === 'cat') return 2;
+  return 0;
+}
+
+function toPetGender(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value === 1 || value === 2 ? value : 0;
+  }
+  const v = String(value || '').toLowerCase();
+  if (v === 'male') return 1;
+  if (v === 'female') return 2;
+  return 0;
+}
+
+function petTypeToSpecies(type) {
+  switch (toPetType(type)) {
+    case 1:
+      return 'dog';
+    case 2:
+      return 'cat';
+    default:
+      return 'unknown';
+  }
+}
+
+function petGenderToString(gender) {
+  switch (toPetGender(gender)) {
+    case 1:
+      return 'male';
+    case 2:
+      return 'female';
+    default:
+      return 'unknown';
+  }
+}
+
+function toEmotionInt(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    const n = Math.trunc(value);
+    return n >= 0 && n <= 6 ? n : 0;
+  }
+  const v = String(value || '').toLowerCase();
+  const map = {
+    happy: 1,
+    calm: 2,
+    sad: 3,
+    angry: 4,
+    sleepy: 5,
+    curious: 6,
+  };
+  return map[v] || 0;
+}
+
+function normalizeEmotionRecord(record, req) {
+  return {
+    ...record,
+    aiEmotion: toEmotionInt(record.aiEmotion),
+    selectedEmotion: toEmotionInt(record.selectedEmotion),
+    stickerUrl: normalizeMediaUrl(req, record.stickerUrl),
+  };
+}
+
 // 内部 pet → api.md 格式映射
 function mapPetToApi(pet) {
-  const speciesMap = { cat: 2, dog: 1 };
-  const genderMap = { male: 1, female: 2, unknown: 0 };
+  const type = toPetType(pet.type ?? pet.species);
+  const gender = toPetGender(pet.gender);
   return {
     petId: pet.id,
-    type: speciesMap[pet.species] || 0,
-    gender: genderMap[pet.gender] || 0,
+    type,
+    gender,
     birthday: pet.birthday || '',
     ownerTitle: pet.ownerNickname || '',
     avatar: pet.profilePhotoPath || '',
     nickName: pet.name || '',
     character: pet.personality || '',
     description: pet.breed || '',
-  };
-}
-
-// 内部 diary → api.md diary list item 格式映射
-function mapDiaryToListItem(diary) {
-  return {
-    diaryId: diary.id,
-    date: diary.date || '',
-    title: diary.title || (diary.content ? diary.content.substring(0, 20) : ''),
-    avatar: diary.imagePath || '',
-    emotion: diary.emotion || 0,
-  };
-}
-
-// 获取星期几 (日=0, 一=1, ..., 六=6)
-function getWeekDay(dateStr) {
-  const d = new Date(dateStr);
-  return d.getDay();
-}
-
-// 内部 diary → api.md calendar day item 格式映射
-function mapDiaryToCalendarDay(diary) {
-  return {
-    diaryId: diary.id,
-    date: diary.date || '',
-    weekDay: getWeekDay(diary.date),
-    title: diary.title || (diary.content ? diary.content.substring(0, 20) : ''),
-    avatar: diary.imagePath || '',
-    emotion: diary.emotion || 0,
   };
 }
 
@@ -212,6 +326,7 @@ function tokenMiddleware(req, res, next) {
 }
 
 // 对所有 /api/chongyu/ 路由应用 token 验证
+app.use('/api/chongyu', httpLogger);
 app.use('/api/chongyu', tokenMiddleware);
 
 // ==================== 路由定义 ====================
@@ -226,9 +341,6 @@ app.get('/', (req, res) => {
         'GET /api/chongyu/pet/list': '查询宠物列表',
         'GET /api/chongyu/pet/detail': '查询宠物/日记详情',
         'POST /api/chongyu/image/list/upload': '批量上传相册图片',
-        'GET /api/chongyu/diary/list': '查询日记列表',
-        'GET /api/chongyu/diary/calendar': '查询日历情绪',
-        'GET /api/chongyu/diary/7days': '查询前7天情绪',
         'GET /api/chongyu/pet/photos': '查询宠物照片',
         'POST /api/chongyu/pets/profile': '同步宠物档案',
         'GET /api/chongyu/pets/:petId/profile': '获取宠物档案',
@@ -239,6 +351,7 @@ app.get('/', (req, res) => {
         'GET /api/chongyu/diaries': '获取日记列表',
         'GET /api/chongyu/diaries/:diaryId': '获取日记详情',
         'POST /api/chongyu/emotions/save': '保存情绪记录',
+        'GET /api/chongyu/emotions/month': '按月查询情绪记录',
         'GET /api/chongyu/stats': '获取服务器统计信息',
         'POST /api/chongyu/ai/sticker/generate': '生成贴纸（AI 管线）',
         'POST /api/chongyu/ai/diary/generate': '生成日记文字（AI 管线）',
@@ -264,6 +377,9 @@ app.post('/api/chongyu/ai/sticker/generate', upload.single('image'), async (req,
       host,
       protocol
     });
+    if (result?.analysis) {
+      result.analysis.emotion = toEmotionInt(result.analysis.emotion);
+    }
     res.json(successResponse(result));
   } catch (error) {
     console.error('❌ AI 贴纸生成失败:', error);
@@ -277,7 +393,7 @@ app.post('/api/chongyu/ai/sticker/generate', upload.single('image'), async (req,
 
     const fallback = {
       analysis: {
-        emotion: 'calm',
+        emotion: 2,
         confidence: 0.0,
         reasoning: 'fallback'
       },
@@ -537,10 +653,12 @@ app.get('/api/chongyu/pet/detail', (req, res) => {
     return res.json(successResponse({
       date: diary.date || '',
       title: diary.title || '',
-      avatar: diary.imagePath || '',
+      avatar: normalizeUrl(req, diary.imagePath || ''),
       emotion: diary.emotion || 0,
       content: diary.content || '',
-      imageList: imageList,
+      imageList: Array.isArray(imageList)
+        ? imageList.map(u => normalizeUrl(req, u))
+        : imageList,
     }));
   }
 
@@ -668,93 +786,6 @@ app.post('/api/chongyu/image/list/upload', upload.array('image', 20), (req, res)
   res.json(successResponse({ uploaded, duplicates }));
 });
 
-// 查询日记列表
-app.get('/api/chongyu/diary/list', (req, res) => {
-  const { petId } = req.query;
-
-  if (!petId) {
-    return res.status(400).json(errorResponse('缺少 petId 参数', 400));
-  }
-
-  const diaries = database.diaries
-    .filter(d => d.petId === petId)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const diaryList = normalizeDiaryList(
-    req,
-    diaries.map(mapDiaryToListItem)
-  );
-
-  if (VERBOSE) console.log(`📋 查询日记列表: petId=${petId}, count=${diaryList.length}`);
-
-  res.json(successResponse({ diaryList }));
-});
-
-// 查询日历情绪
-app.get('/api/chongyu/diary/calendar', (req, res) => {
-  const { petId, yearMonth } = req.query;
-
-  if (!petId || !yearMonth) {
-    return res.status(400).json(errorResponse('缺少 petId 或 yearMonth 参数', 400));
-  }
-
-  // yearMonth 格式: 202601
-  const ym = String(yearMonth);
-  const year = parseInt(ym.substring(0, 4), 10);
-  const month = parseInt(ym.substring(4, 6), 10);
-
-  const diaries = database.diaries.filter(d => {
-    if (d.petId !== petId) return false;
-    const dDate = new Date(d.date);
-    return dDate.getFullYear() === year && (dDate.getMonth() + 1) === month;
-  });
-
-  const dayList = normalizeDiaryList(
-    req,
-    diaries
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map(mapDiaryToCalendarDay)
-  );
-
-  if (VERBOSE) console.log(`📅 查询日历: petId=${petId}, yearMonth=${yearMonth}, days=${dayList.length}`);
-
-  res.json(successResponse({ dayList }));
-});
-
-// 查询前7天情绪
-app.get('/api/chongyu/diary/7days', (req, res) => {
-  const { petId, date } = req.query;
-
-  if (!petId || !date) {
-    return res.status(400).json(errorResponse('缺少 petId 或 date 参数', 400));
-  }
-
-  // date 格式: 20260130
-  const ds = String(date);
-  const year = parseInt(ds.substring(0, 4), 10);
-  const month = parseInt(ds.substring(4, 6), 10) - 1;
-  const day = parseInt(ds.substring(6, 8), 10);
-  const endDate = new Date(year, month, day);
-  const startDate = new Date(year, month, day - 6); // 含当天共7天
-
-  const diaries = database.diaries.filter(d => {
-    if (d.petId !== petId) return false;
-    const dDate = new Date(d.date);
-    return dDate >= startDate && dDate <= endDate;
-  });
-
-  const dayList = normalizeDiaryList(
-    req,
-    diaries
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map(mapDiaryToCalendarDay)
-  );
-
-  if (VERBOSE) console.log(`📆 查询7天: petId=${petId}, date=${date}, days=${dayList.length}`);
-
-  res.json(successResponse({ dayList }));
-});
-
 // 查询宠物照片（按 petId + date）
 app.get('/api/chongyu/pet/photos', (req, res) => {
   const { petId, date } = req.query;
@@ -787,7 +818,12 @@ app.get('/api/chongyu/pet/photos', (req, res) => {
 app.post('/api/chongyu/pets/profile', (req, res) => {
   if (VERBOSE) console.log('📝 收到宠物档案同步请求:', req.body);
 
-  const pet = req.body;
+  const incoming = req.body || {};
+  const pet = {
+    ...incoming,
+    species: petTypeToSpecies(incoming.type ?? incoming.species),
+    gender: petGenderToString(incoming.gender),
+  };
   const existingIndex = database.pets.findIndex(p => p.id === pet.id);
 
   if (existingIndex >= 0) {
@@ -997,16 +1033,32 @@ app.get('/api/chongyu/diaries/:diaryId', (req, res) => {
   const diary = database.diaries.find(d => d.id === diaryId);
 
   if (diary) {
-    res.json({
-      success: true,
-      data: diary
-    });
-  } else {
-    res.status(404).json({
-      success: false,
-      message: '日记不存在'
-    });
+    // 动态从 pet_photos 构建 imageList，合并已有的 diary.imageList
+    let imageList = diary.imageList ? [...diary.imageList] : [];
+    if (database.pet_photos) {
+      const petPhotos = database.pet_photos
+        .filter(p => p.petId === diary.petId && p.date === diary.date)
+        .map(p => p.url);
+      for (const url of petPhotos) {
+        if (!imageList.includes(url)) {
+          imageList.push(url);
+        }
+      }
+    }
+
+    return res.json(successResponse({
+      date: diary.date || '',
+      title: diary.title || '',
+      avatar: normalizeUrl(req, diary.imagePath || ''),
+      emotion: diary.emotion || 0,
+      content: diary.content || '',
+      imageList: Array.isArray(imageList)
+        ? imageList.map(u => normalizeUrl(req, u))
+        : imageList,
+    }));
   }
+
+  return res.status(404).json(errorResponse('日记不存在', 404));
 });
 
 // ==================== 情绪记录 API (chongyu) ====================
@@ -1020,7 +1072,7 @@ app.post('/api/chongyu/emotions/save', (req, res) => {
     database.emotion_records = [];
   }
 
-  const record = req.body;
+  const record = normalizeEmotionRecord(req.body || {}, req);
   if (!record.id) {
     return res.status(400).json(errorResponse('缺少 id 字段', 400));
   }
@@ -1046,6 +1098,26 @@ app.post('/api/chongyu/emotions/save', (req, res) => {
     recordId: record.id,
     syncedAt: new Date().toISOString()
   }));
+});
+
+// 按月查询情绪记录
+app.get('/api/chongyu/emotions/month', (req, res) => {
+  const { year, month, petId } = req.query;
+  const yearNum = parseInt(year, 10);
+  const monthNum = parseInt(month, 10);
+
+  if (!Number.isInteger(yearNum) || !Number.isInteger(monthNum)) {
+    return res.status(400).json(errorResponse('year/month 参数不合法', 400));
+  }
+
+  const records = (database.emotion_records || []).filter((record) => {
+    if (petId && record.petId !== petId) return false;
+    const d = new Date(record.date);
+    if (Number.isNaN(d.getTime())) return false;
+    return d.getFullYear() === yearNum && d.getMonth() + 1 === monthNum;
+  }).map((record) => normalizeEmotionRecord(record, req));
+
+  res.json(successResponse({ records }));
 });
 
 // ==================== 统计 API (chongyu) ====================
@@ -1103,9 +1175,6 @@ app.listen(PORT, HOST, () => {
   console.log('   [chongyu] GET  /api/chongyu/pet/list - 宠物列表');
   console.log('   [chongyu] GET  /api/chongyu/pet/detail - 宠物/日记详情');
   console.log('   [chongyu] POST /api/chongyu/image/list/upload - 批量上传图片');
-  console.log('   [chongyu] GET  /api/chongyu/diary/list - 日记列表');
-  console.log('   [chongyu] GET  /api/chongyu/diary/calendar - 日历情绪');
-  console.log('   [chongyu] GET  /api/chongyu/diary/7days - 前7天情绪');
   console.log('   [chongyu] GET  /api/chongyu/pet/photos - 宠物照片');
   console.log('   [chongyu] POST /api/chongyu/pets/profile - 同步宠物档案');
   console.log('   [chongyu] POST /api/chongyu/upload/profile-photo - 上传头像');

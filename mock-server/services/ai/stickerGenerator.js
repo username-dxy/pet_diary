@@ -70,6 +70,51 @@ function buildPublicUrl({ imagePath, host, protocol }) {
   return `${safeProtocol}://${safeHost}${pathPart}`;
 }
 
+function ensureStickerUploadDir() {
+  const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'stickers');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  return uploadDir;
+}
+
+function inferExtensionFromUrlOrType(url, contentType) {
+  if (contentType && contentType.includes('/')) {
+    const extFromType = contentType.split('/')[1].split(';')[0].trim();
+    if (extFromType) {
+      return extFromType === 'jpeg' ? 'jpg' : extFromType;
+    }
+  }
+
+  try {
+    const pathname = new URL(url).pathname;
+    const ext = path.extname(pathname).replace('.', '').toLowerCase();
+    if (ext) return ext;
+  } catch (_) {
+    // ignore
+  }
+  return 'jpg';
+}
+
+async function persistRemoteStickerToLocal({ url, host, protocol }) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Download sticker failed (HTTP ${response.status})`);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const ext = inferExtensionFromUrlOrType(url, contentType);
+  const fileName = `${uuidv4()}.${ext}`;
+  const uploadDir = ensureStickerUploadDir();
+  const filePath = path.join(uploadDir, fileName);
+  const bytes = await response.arrayBuffer();
+  fs.writeFileSync(filePath, Buffer.from(bytes));
+
+  const safeHost = host || 'localhost:3000';
+  const safeProtocol = protocol || 'http';
+  return `${safeProtocol}://${safeHost}/uploads/stickers/${fileName}`;
+}
+
 function isPrivateHost(hostname) {
   if (!hostname) return true;
   const lower = hostname.toLowerCase();
@@ -146,7 +191,12 @@ async function generateStickerWithSeedream({ imagePath, prompt, host, protocol }
     if (!url) {
       throw new Error('Seedream response missing image url');
     }
-    return url;
+    try {
+      return await persistRemoteStickerToLocal({ url, host, protocol });
+    } catch (persistError) {
+      console.warn('⚠️ Seedream 图片落盘失败，回退外链 URL:', persistError.message);
+      return url;
+    }
   } finally {
     clearTimeout(timeoutId);
   }
@@ -185,10 +235,7 @@ async function generateStickerImage({ imagePath, prompt, host, protocol }) {
   const ext = responseMimeType.split('/')[1] || 'png';
   const buffer = Buffer.from(image.data, 'base64');
 
-  const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'stickers');
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  const uploadDir = ensureStickerUploadDir();
 
   const filename = `${uuidv4()}.${ext}`;
   const filePath = path.join(uploadDir, filename);

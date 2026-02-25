@@ -1,5 +1,6 @@
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_response.dart';
+import '../../models/emotion_record.dart';
 
 /// 情绪记录保存响应
 class EmotionSaveResponse {
@@ -34,6 +35,33 @@ class EmotionApiService {
       body: recordJson,
       fromJson: (json) =>
           EmotionSaveResponse.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 按月查询情绪记录
+  Future<ApiResponse<List<EmotionRecord>>> getMonthRecords({
+    required int year,
+    required int month,
+    String? petId,
+  }) {
+    final query = <String, String>{
+      'year': year.toString(),
+      'month': month.toString(),
+    };
+    if (petId != null && petId.isNotEmpty) {
+      query['petId'] = petId;
+    }
+
+    return _client.get<List<EmotionRecord>>(
+      '/api/chongyu/emotions/month',
+      queryParams: query,
+      fromJson: (json) {
+        final map = json as Map<String, dynamic>;
+        final rawList = map['records'] as List<dynamic>? ?? const [];
+        return rawList
+            .map((e) => EmotionRecord.fromJson(e as Map<String, dynamic>))
+            .toList();
+      },
     );
   }
 }

@@ -66,6 +66,34 @@ class EmotionRepository {
     await prefs.setString(_key, json.encode(jsonList));
   }
 
+  /// 批量 upsert 记录（按 id 覆盖）
+  Future<void> upsertRecords(List<EmotionRecord> records) async {
+    if (records.isEmpty) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString(_key);
+
+    List<EmotionRecord> allRecords = [];
+    if (jsonString != null) {
+      final List<dynamic> jsonList = json.decode(jsonString);
+      allRecords = jsonList
+          .map((json) => EmotionRecord.fromJson(json as Map<String, dynamic>))
+          .toList();
+    }
+
+    for (final record in records) {
+      final index = allRecords.indexWhere((r) => r.id == record.id);
+      if (index >= 0) {
+        allRecords[index] = record;
+      } else {
+        allRecords.add(record);
+      }
+    }
+
+    final newJsonList = allRecords.map((r) => r.toJson()).toList();
+    await prefs.setString(_key, json.encode(newJsonList));
+  }
+
   /// 删除记录
   Future<void> deleteRecord(String recordId) async {
     final prefs = await SharedPreferences.getInstance();

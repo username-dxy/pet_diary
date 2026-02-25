@@ -7,8 +7,6 @@ import 'package:pet_diary/data/models/pet.dart';
 import 'package:pet_diary/data/models/pet_features.dart';
 import 'package:pet_diary/data/repositories/emotion_repository.dart';
 import 'package:pet_diary/data/repositories/pet_repository.dart';
-import 'package:pet_diary/domain/services/ai_service/emotion_recognition_service.dart';
-import 'package:pet_diary/domain/services/ai_service/feature_extraction_service.dart';
 import 'package:pet_diary/domain/services/ai_service/sticker_generation_service.dart';
 import 'package:pet_diary/domain/services/asset_manager.dart';
 import 'dart:io';
@@ -17,8 +15,6 @@ class CalendarViewModel extends ChangeNotifier {
   final EmotionRepository _repository = EmotionRepository();
   final PetRepository _petRepository = PetRepository();
   final EmotionApiService _emotionApiService = EmotionApiService();
-  final EmotionRecognitionService _emotionService = EmotionRecognitionService();
-  final FeatureExtractionService _featureService = FeatureExtractionService();
   final StickerGenerationService _stickerService = StickerGenerationService();
 
   Pet? _currentPet;
@@ -60,6 +56,30 @@ class CalendarViewModel extends ChangeNotifier {
     _currentPet = await _petRepository.getCurrentPet();
     _monthRecords = await _repository.getMonthRecords(_currentYear, _currentMonth);
     notifyListeners();
+
+    final petId = _currentPet?.id;
+    if (petId == null || petId.isEmpty) return;
+
+    try {
+      final response = await _emotionApiService.getMonthRecords(
+        year: _currentYear,
+        month: _currentMonth,
+        petId: petId,
+      );
+
+      if (!response.success || response.data == null) {
+        debugPrint('⚠️ [Calendar] 月度记录拉取失败: ${response.errorMessage}');
+        return;
+      }
+
+      final remoteRecords = response.data!;
+      await _repository.upsertRecords(remoteRecords);
+      _monthRecords = await _repository.getMonthRecords(_currentYear, _currentMonth);
+      notifyListeners();
+      debugPrint('✅ [Calendar] 月度记录已从服务端同步: ${remoteRecords.length} 条');
+    } catch (e) {
+      debugPrint('⚠️ [Calendar] 月度记录同步异常: $e');
+    }
   }
 
   /// 切换月份
@@ -208,55 +228,6 @@ class CalendarViewModel extends ChangeNotifier {
     _progress = 1.0;
 
     debugPrint('兜底流程完成: 情绪=${_recognizedEmotion?.name}');
-  }
-
-  /// 处理照片（完整的三模型流程）
-  Future<void> processImage() async {
-    if (_selectedImage == null) return;
-
-    _isProcessing = true;
-    _progress = 0.0;
-    notifyListeners();
-
-    try {
-      // 步骤1：识别情绪（模型A）
-      _currentStep = '① 识别情绪...';
-      _progress = 0.3;
-      notifyListeners();
-
-      final emotionResult = await _emotionService.recognizeEmotion(_selectedImage!);
-      _recognizedEmotion = emotionResult.emotion;
-
-      // 步骤2：提取特征（模型B）
-      _currentStep = '② 分析特征...';
-      _progress = 0.6;
-      notifyListeners();
-
-      _extractedFeatures = await _featureService.extractFeatures(_selectedImage!);
-
-      // 步骤3：生成贴纸（模型C）
-      _currentStep = '③ 生成贴纸...';
-      _progress = 0.9;
-      notifyListeners();
-
-      _generatedStickerPath = await _stickerService.generateSticker(
-        photo: _selectedImage!,
-        emotion: _recognizedEmotion!,
-        features: _extractedFeatures!,
-      );
-
-      // 完成
-      _currentStep = '完成！';
-      _progress = 1.0;
-      
-      debugPrint('AI流程完成: 情绪=${_recognizedEmotion?.name}');
-    } catch (e) {
-      _currentStep = '生成失败：$e';
-      debugPrint('Error processing image: $e');
-    } finally {
-      _isProcessing = false;
-      notifyListeners();
-    }
   }
 
   /// 切换情绪（重新生成贴纸）

@@ -44,7 +44,7 @@ class ApiConfig {
     // 热点：172.20.10.6 
     return const String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://192.168.3.129:3000',
+      defaultValue: 'http://172.20.10.6:3000',
     );
   }
 

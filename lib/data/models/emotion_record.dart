@@ -41,10 +41,10 @@ class EmotionRecord extends Equatable {
       petId: json['petId'] as String,
       date: DateTime.parse(json['date'] as String),
       originalPhotoPath: json['originalPhotoPath'] as String?,
-      aiEmotion: Emotion.values.byName(json['aiEmotion'] as String),
+      aiEmotion: _emotionFromApi(json['aiEmotion']),
       aiConfidence: (json['aiConfidence'] as num).toDouble(),
       aiFeatures: PetFeatures.fromJson(json['aiFeatures'] as Map<String, dynamic>),
-      selectedEmotion: Emotion.values.byName(json['selectedEmotion'] as String),
+      selectedEmotion: _emotionFromApi(json['selectedEmotion']),
       stickerUrl: json['stickerUrl'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -57,10 +57,10 @@ class EmotionRecord extends Equatable {
       'petId': petId,
       'date': date.toIso8601String(),
       'originalPhotoPath': originalPhotoPath,
-      'aiEmotion': aiEmotion.name,
+      'aiEmotion': _emotionToApi(aiEmotion),
       'aiConfidence': aiConfidence,
       'aiFeatures': aiFeatures.toJson(),
-      'selectedEmotion': selectedEmotion.name,
+      'selectedEmotion': _emotionToApi(selectedEmotion),
       'stickerUrl': stickerUrl,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -88,4 +88,49 @@ class EmotionRecord extends Equatable {
 
   @override
   List<Object?> get props => [id, selectedEmotion, updatedAt];
+
+  static Emotion _emotionFromApi(dynamic value) {
+    if (value is num) {
+      switch (value.toInt()) {
+        case 1:
+          return Emotion.happy;
+        case 2:
+          return Emotion.calm;
+        case 3:
+          return Emotion.sad;
+        case 4:
+          return Emotion.angry;
+        case 5:
+          return Emotion.sleepy;
+        case 6:
+          return Emotion.curious;
+        default:
+          return Emotion.calm;
+      }
+    }
+
+    final name = (value ?? '').toString();
+    try {
+      return Emotion.values.byName(name);
+    } catch (_) {
+      return Emotion.calm;
+    }
+  }
+
+  static int _emotionToApi(Emotion emotion) {
+    switch (emotion) {
+      case Emotion.happy:
+        return 1;
+      case Emotion.calm:
+        return 2;
+      case Emotion.sad:
+        return 3;
+      case Emotion.angry:
+        return 4;
+      case Emotion.sleepy:
+        return 5;
+      case Emotion.curious:
+        return 6;
+    }
+  }
 }

@@ -8,6 +8,18 @@ Pet Diary is a Flutter app for tracking pet emotions with AI-powered image recog
 
 **Dart SDK**: >=3.0.0 <4.0.0
 
+## 项目文档
+
+| 文档 | 路径 | 说明 |
+|-----|------|------|
+| 功能清单 | `FEATURE_AUDIT.md` | 所有页面交互点、数据流转、交互元素汇总 |
+| API 接口规范 | `API_SPEC.md` | 所有接口的 Request / Response / 错误码 / 业务规则 |
+
+**IMPORTANT**：每次新增或修改功能时，必须同步更新以上两个文档：
+- 新增/删除/修改 API 接口 → 更新 `API_SPEC.md` 对应章节
+- 新增/删除/修改页面交互、数据流 → 更新 `FEATURE_AUDIT.md` 对应章节
+- 两份文档须与代码实现保持一致，不允许出现文档描述的接口或交互在代码中不存在的情况
+
 ## Development Commands
 
 ```bash
