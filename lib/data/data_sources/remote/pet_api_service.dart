@@ -101,7 +101,7 @@ class PetApiService {
   /// 获取宠物列表
   Future<ApiResponse<PetListResponse>> getPetList() {
     return _client.get<PetListResponse>(
-      '/api/chongyu/pet/list',
+      '/api/mengyu/pet/list',
       fromJson: (json) =>
           PetListResponse.fromJson(json as Map<String, dynamic>),
     );
@@ -110,7 +110,7 @@ class PetApiService {
   /// 获取宠物详情
   Future<ApiResponse<PetApiModel>> getPetDetail(String petId) {
     return _client.get<PetApiModel>(
-      '/api/chongyu/pet/detail',
+      '/api/mengyu/pet/detail',
       queryParams: {'petId': petId},
       fromJson: (json) => PetApiModel.fromJson(json as Map<String, dynamic>),
     );

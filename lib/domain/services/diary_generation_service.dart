@@ -88,7 +88,7 @@ class DiaryGenerationService {
 
     try {
       final response = await _client.uploadFiles<DiaryGenerationResult>(
-        '/api/chongyu/ai/diary/generate',
+        '/api/mengyu/ai/diary/generate',
         files: {'images': imagePaths},
         fields: {
           'pet': petJson,

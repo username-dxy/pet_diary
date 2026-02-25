@@ -26,7 +26,7 @@ npm run dev
 #### 获取宠物列表
 ```bash
 curl -H "token: test123" \
-  http://192.168.3.129:3000/api/chongyu/pet/list
+  http://192.168.3.129:3000/api/mengyu/pet/list
 ```
 **期望响应:**
 ```json
@@ -53,7 +53,7 @@ curl -H "token: test123" \
 #### 获取宠物详情
 ```bash
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/detail?petId=YOUR_PET_ID"
+  "http://192.168.3.129:3000/api/mengyu/pet/detail?petId=YOUR_PET_ID"
 ```
 
 ---
@@ -63,7 +63,7 @@ curl -H "token: test123" \
 #### 获取日记列表
 ```bash
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/diary/list?petId=YOUR_PET_ID"
+  "http://192.168.3.129:3000/api/mengyu/diary/list?petId=YOUR_PET_ID"
 ```
 **期望响应:**
 ```json
@@ -87,11 +87,11 @@ curl -H "token: test123" \
 ```bash
 # 通过 diaryId 查询
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/detail?petId=YOUR_PET_ID&diaryId=YOUR_DIARY_ID"
+  "http://192.168.3.129:3000/api/mengyu/pet/detail?petId=YOUR_PET_ID&diaryId=YOUR_DIARY_ID"
 
 # 或通过 date 查询
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/detail?petId=YOUR_PET_ID&date=2026-01-30"
+  "http://192.168.3.129:3000/api/mengyu/pet/detail?petId=YOUR_PET_ID&date=2026-01-30"
 ```
 **期望响应:**
 ```json
@@ -114,13 +114,13 @@ curl -H "token: test123" \
 #### 查询日历情绪
 ```bash
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/diary/calendar?petId=YOUR_PET_ID&yearMonth=202601"
+  "http://192.168.3.129:3000/api/mengyu/diary/calendar?petId=YOUR_PET_ID&yearMonth=202601"
 ```
 
 #### 查询前7天情绪
 ```bash
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/diary/7days?petId=YOUR_PET_ID&date=20260130"
+  "http://192.168.3.129:3000/api/mengyu/diary/7days?petId=YOUR_PET_ID&date=20260130"
 ```
 
 ---
@@ -138,7 +138,7 @@ curl -H "token: test123" \
   -F "petId_1=YOUR_PET_ID" \
   -F "date_1=2026-01-30" \
   -F "assetId_1=asset_002" \
-  http://192.168.3.129:3000/api/chongyu/image/list/upload
+  http://192.168.3.129:3000/api/mengyu/image/list/upload
 ```
 **期望响应:**
 ```json
@@ -161,11 +161,11 @@ curl -H "token: test123" \
 ```bash
 # 查询宠物所有照片
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/photos?petId=YOUR_PET_ID"
+  "http://192.168.3.129:3000/api/mengyu/pet/photos?petId=YOUR_PET_ID"
 
 # 查询特定日期照片
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/photos?petId=YOUR_PET_ID&date=2026-01-30"
+  "http://192.168.3.129:3000/api/mengyu/pet/photos?petId=YOUR_PET_ID&date=2026-01-30"
 ```
 
 ---
@@ -290,7 +290,7 @@ ifconfig | grep "inet "
 **检查:**
 - 上传时是否同时传递了 `petId_N` 和 `date_N` 字段
 - 日期格式是否为 `yyyy-MM-dd`
-- 查询 `/api/chongyu/pet/photos` 确认照片已存入
+- 查询 `/api/mengyu/pet/photos` 确认照片已存入
 
 ---
 
@@ -318,15 +318,15 @@ scanService.scanResultStream.listen((result) {
 ```bash
 # 查看 pet_photos 集合
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/photos?petId=YOUR_PET_ID"
+  "http://192.168.3.129:3000/api/mengyu/pet/photos?petId=YOUR_PET_ID"
 
 # 查看自动生成的日记
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/diary/list?petId=YOUR_PET_ID"
+  "http://192.168.3.129:3000/api/mengyu/diary/list?petId=YOUR_PET_ID"
 
 # 查看日记的 imageList
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/detail?petId=YOUR_PET_ID&date=2026-01-30"
+  "http://192.168.3.129:3000/api/mengyu/pet/detail?petId=YOUR_PET_ID&date=2026-01-30"
 ```
 
 5. **验证去重机制**
@@ -367,7 +367,7 @@ time curl -H "token: test123" \
   -F "image=@test_1.jpg" -F "petId_0=pet1" -F "date_0=2026-01-30" \
   -F "image=@test_2.jpg" -F "petId_1=pet1" -F "date_1=2026-01-30" \
   # ... 更多文件
-  http://192.168.3.129:3000/api/chongyu/image/list/upload
+  http://192.168.3.129:3000/api/mengyu/image/list/upload
 ```
 
 ---

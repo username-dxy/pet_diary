@@ -147,7 +147,7 @@ async function testDiaryGenerate(imagePath) {
       {
         hostname: SERVER_HOST,
         port: SERVER_PORT,
-        path: '/api/chongyu/ai/diary/generate',
+        path: '/api/mengyu/ai/diary/generate',
         headers: { 'token': TOKEN }
       },
       {

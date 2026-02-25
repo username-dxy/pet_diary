@@ -114,7 +114,7 @@
 
 #### 4.1 上传请求
 ```dart
-🌐 UPLOAD http://192.168.3.129:3000/api/chongyu/image/list/upload
+🌐 UPLOAD http://192.168.3.129:3000/api/mengyu/image/list/upload
    文件数: 1
    字段数: 3
    petId: test-pet-001
@@ -300,7 +300,7 @@ cat mock-server/db.json | jq '.pet_photos'
 
 # 查看日记 imageList
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/detail?petId=<pet-id>&date=2026-02-04"
+  "http://192.168.3.129:3000/api/mengyu/pet/detail?petId=<pet-id>&date=2026-02-04"
 ```
 
 ---
@@ -344,7 +344,7 @@ curl -H "token: test123" \
    ✅ 已压缩
    📤 上传中...
 
-🌐 UPLOAD http://192.168.3.129:3000/api/chongyu/image/list/upload
+🌐 UPLOAD http://192.168.3.129:3000/api/mengyu/image/list/upload
    文件数: 1
    字段数: 3
    petId: test-pet-001

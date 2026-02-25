@@ -29,7 +29,7 @@ curl http://192.168.3.129:3000/
 
 ### 2. Token 认证
 ```bash
-curl -H "token: test123" http://192.168.3.129:3000/api/chongyu/pet/list
+curl -H "token: test123" http://192.168.3.129:3000/api/mengyu/pet/list
 ```
 **结果**: ✅ 返回 4 个宠物
 - test_pet_001 (橘猫 - 测试小猫)
@@ -39,13 +39,13 @@ curl -H "token: test123" http://192.168.3.129:3000/api/chongyu/pet/list
 
 ### 3. 日记列表
 ```bash
-curl -H "token: test123" "http://192.168.3.129:3000/api/chongyu/diary/list?petId=test_pet_001"
+curl -H "token: test123" "http://192.168.3.129:3000/api/mengyu/diary/list?petId=test_pet_001"
 ```
 **结果**: ✅ 返回 6 篇日记（2026-01-26 至 2026-01-31）
 
 ### 4. 宠物照片查询
 ```bash
-curl -H "token: test123" "http://192.168.3.129:3000/api/chongyu/pet/photos?petId=test_pet_001"
+curl -H "token: test123" "http://192.168.3.129:3000/api/mengyu/pet/photos?petId=test_pet_001"
 ```
 **结果**: ✅ 返回空数组（test_pet_001 暂无上传的照片）
 
@@ -221,9 +221,9 @@ if (response.success) {
 
 **API 请求:**
 ```
-[ApiClient] GET http://192.168.3.129:3000/api/chongyu/pet/list
+[ApiClient] GET http://192.168.3.129:3000/api/mengyu/pet/list
 [ApiClient] Response [200]: {"success":true,...}
-[ApiClient] UPLOAD http://192.168.3.129:3000/api/chongyu/image/list/upload
+[ApiClient] UPLOAD http://192.168.3.129:3000/api/mengyu/image/list/upload
 [ApiClient] 网络连接失败
 [ApiClient] 请求超时
 [ApiClient] 未授权，请重新登录
@@ -285,7 +285,7 @@ await ApiConfig.setToken('test123');
 ```bash
 # 查询宠物照片
 curl -H "token: test123" \
-  "http://192.168.3.129:3000/api/chongyu/pet/photos?petId=YOUR_PET_ID&date=2026-02-04"
+  "http://192.168.3.129:3000/api/mengyu/pet/photos?petId=YOUR_PET_ID&date=2026-02-04"
 ```
 
 ---
@@ -306,7 +306,7 @@ cat mock-server/db.json | jq '.pet_photos[] | {petId, date, assetId, url}'
 cat mock-server/db.json | jq '.diaries[] | select(.id == "test_diary_001") | .imageList'
 
 # 查看上传统计
-curl http://192.168.3.129:3000/api/chongyu/stats | jq '.data'
+curl http://192.168.3.129:3000/api/mengyu/stats | jq '.data'
 ```
 
 ---

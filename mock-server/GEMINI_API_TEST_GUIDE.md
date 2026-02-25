@@ -98,7 +98,7 @@ cd mock-server
 npm start
 
 # 2. 上传测试照片并生成贴纸
-curl -X POST "http://192.168.3.129:3000/api/chongyu/ai/sticker/generate" \
+curl -X POST "http://192.168.3.129:3000/api/mengyu/ai/sticker/generate" \
   -F "image=@/path/to/pet-photo.jpg"
 ```
 
@@ -267,7 +267,7 @@ curl "https://generativelanguage.googleapis.com/v1beta/models?key=$GEMINI_API_KE
 
 ### 1. 照片情绪分析
 
-**端点**: `POST /api/chongyu/ai/sticker/generate`
+**端点**: `POST /api/mengyu/ai/sticker/generate`
 
 **流程**:
 ```
@@ -313,7 +313,7 @@ node test_gemini_simple.js
 node test_gemini_vision.js
 
 # ✅ 4. 测试完整管线（需要服务器运行）
-curl -X POST "http://192.168.3.129:3000/api/chongyu/ai/sticker/generate" \
+curl -X POST "http://192.168.3.129:3000/api/mengyu/ai/sticker/generate" \
   -F "image=@uploads/photos/8808bc26-adc6-44ab-a502-6498031b076d.png"
 ```
 

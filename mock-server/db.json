@@ -3,7 +3,7 @@
     {
       "id": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
       "name": "ipo",
-      "species": "cat",
+      "type": 2,
       "breed": null,
       "profilePhotoPath": "/var/mobile/Containers/Data/Application/FAD6F4F9-A913-4CB1-9407-C9CA1F7D7BDA/Documents/diary_photos/diary_1770360980184.jpg",
       "birthday": "2025-01-21T00:00:00.000",
@@ -11,7 +11,8 @@
       "gender": "male",
       "personality": "lively",
       "createdAt": "2026-02-06T06:56:21.280Z",
-      "updatedAt": "2026-02-06T06:56:21.280Z"
+      "species": "cat",
+      "updatedAt": "2026-02-25T13:12:40.912Z"
     }
   ],
   "photos": [
@@ -612,6 +613,25 @@
       "createdAt": "2026-02-12T13:29:31.828788",
       "updatedAt": "2026-02-12T13:29:31.828788",
       "syncedAt": "2026-02-12T05:29:31.802Z"
+    },
+    {
+      "id": "1772024904128",
+      "petId": "f9f97894-d7ac-4360-b1ca-4ed62cf18e63",
+      "date": "2026-02-25T21:08:24.128048",
+      "originalPhotoPath": "/private/var/mobile/Containers/Data/Application/1CACC929-B526-42B1-81B3-98BD91EFD5C9/tmp/image_picker_16CB9FB6-416F-43DD-9C56-0DF3FE52EEE1-40183-0000134CC4740BD1.jpg",
+      "aiEmotion": 2,
+      "aiConfidence": 0,
+      "aiFeatures": {
+        "species": "cat",
+        "breed": "宠物",
+        "color": "可爱",
+        "pose": "sitting"
+      },
+      "selectedEmotion": 2,
+      "stickerUrl": "http://192.168.3.129:3000/private/var/mobile/Containers/Data/Application/1CACC929-B526-42B1-81B3-98BD91EFD5C9/tmp/image_picker_16CB9FB6-416F-43DD-9C56-0DF3FE52EEE1-40183-0000134CC4740BD1.jpg",
+      "createdAt": "2026-02-25T21:08:24.128109",
+      "updatedAt": "2026-02-25T21:08:24.128110",
+      "syncedAt": "2026-02-25T13:08:24.226Z"
     }
   ]
 }

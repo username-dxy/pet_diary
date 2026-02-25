@@ -101,7 +101,7 @@ HomeViewModel.loadData()
               └─ ImageApiService.uploadImages()
                    │
                    ▼
-              POST /api/chongyu/image/list/upload
+              POST /api/mengyu/image/list/upload
                    │
                    ├─ 字段: petId_N, date_N, assetId_N
                    │
@@ -167,7 +167,7 @@ debugPrint('🔧 [Connection] Base URL: ${ApiConfig.baseUrl}');
 
 查找日志关键词：
 ```
-[ApiClient] UPLOAD http://192.168.3.129:3000/api/chongyu/image/list/upload
+[ApiClient] UPLOAD http://192.168.3.129:3000/api/mengyu/image/list/upload
 [ApiClient] Response [200]: {"success":true,"data":{...}}
 ```
 
@@ -373,7 +373,7 @@ curl -H "token: test123" \
   -F "petId_0=test_pet_001" \
   -F "date_0=2026-02-04" \
   -F "assetId_0=test-001" \
-  http://192.168.3.129:3000/api/chongyu/image/list/upload
+  http://192.168.3.129:3000/api/mengyu/image/list/upload
 ```
 
 ---

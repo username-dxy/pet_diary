@@ -23,12 +23,12 @@ echo ""
 
 # 测试获取统计信息
 echo "📊 2. 获取统计信息..."
-curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/stats | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/mengyu/stats | python3 -m json.tool
 echo ""
 
 # 测试创建宠物档案
 echo "📝 3. 测试创建宠物档案..."
-curl -s -X POST $BASE_URL/api/chongyu/pets/profile \
+curl -s -X POST $BASE_URL/api/mengyu/pets/profile \
   -H "Content-Type: application/json" \
   -H "token: $TOKEN" \
   -d '{
@@ -46,12 +46,12 @@ echo ""
 
 # 测试获取宠物档案
 echo "🔍 4. 测试获取宠物档案..."
-curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/pets/test_pet_001/profile | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/mengyu/pets/test_pet_001/profile | python3 -m json.tool
 echo ""
 
 # 测试创建日记
 echo "📔 5. 测试创建日记..."
-curl -s -X POST $BASE_URL/api/chongyu/diaries \
+curl -s -X POST $BASE_URL/api/mengyu/diaries \
   -H "Content-Type: application/json" \
   -H "token: $TOKEN" \
   -d '{
@@ -66,12 +66,12 @@ echo ""
 
 # 测试获取日记列表
 echo "📚 6. 测试获取日记列表..."
-curl -s -H "token: $TOKEN" "$BASE_URL/api/chongyu/diaries?petId=test_pet_001&limit=10" | python3 -m json.tool
+curl -s -H "token: $TOKEN" "$BASE_URL/api/mengyu/diaries?petId=test_pet_001&limit=10" | python3 -m json.tool
 echo ""
 
 # 再次获取统计信息
 echo "📊 7. 查看更新后的统计信息..."
-curl -s -H "token: $TOKEN" $BASE_URL/api/chongyu/stats | python3 -m json.tool
+curl -s -H "token: $TOKEN" $BASE_URL/api/mengyu/stats | python3 -m json.tool
 echo ""
 
 echo "✅ ====================================="

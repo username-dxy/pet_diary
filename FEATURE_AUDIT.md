@@ -67,7 +67,7 @@ submitProfile()
   ├─ PetRepository.savePet() → SharedPreferences('current_pet')
   ├─ ApiConfig.setToken(pet.id)
   ├─ (async 非阻塞) ProfileService.api().syncProfile(pet)
-  │   └─ POST /api/chongyu/pet/create
+  │   └─ POST /api/mengyu/pet/create
   └─ pushReplacementNamed('/home')
 ```
 
@@ -132,7 +132,7 @@ _triggerScanOnStartup()
          │   ├─ 如果 < 1MB → 直接返回原始路径
          │   └─ 否则 → 最大边 1080px, JPEG 80% → /tmp/compressed_XXX.jpg
          └─ ImageApiService.uploadImages([ImageUploadItem])
-             └─ POST /api/chongyu/image/list/upload (multipart)
+             └─ POST /api/mengyu/image/list/upload (multipart)
                 字段: image_N, assetId_N, petId_N, date_N, time_N, location_N
                 服务端自动：
                   ├─ 写入 pet_photos（按 assetId+petId 去重）
@@ -178,7 +178,7 @@ _handleAddEmotion()
   ├─ vm.processImageSimple()
   │   ├─ 尝试 AI 处理
   │   │   └─ StickerGenerationService.generateStickerFromServer(photo)
-  │   │       └─ POST /api/chongyu/ai/sticker/generate
+  │   │       └─ POST /api/mengyu/ai/sticker/generate
   │   │           返回: {emotion, confidence, features{species,breed,color,pose}, stickerUrl}
   │   │           → _recognizedEmotion, _generatedStickerPath, _extractedFeatures
   │   └─ 失败 fallback (_fallbackProcess)
@@ -191,7 +191,7 @@ _handleAddEmotion()
       ├─ EmotionRepository.saveRecord()
       │   └─ SharedPreferences('emotion_records')
       └─ (async 非阻塞) EmotionApiService.saveEmotionRecord()
-          └─ POST /api/chongyu/emotions/save
+          └─ POST /api/mengyu/emotions/save
 ```
 
 **ViewModel 状态字段**：
@@ -244,10 +244,10 @@ loadData()
   ├─ _currentPet = PetRepository.getCurrentPet()
   │
   ├─ 尝试服务端：
-  │   ├─ GET /api/chongyu/diaries?petId=XXX&limit=30&offset=0
+  │   ├─ GET /api/mengyu/diaries?petId=XXX&limit=30&offset=0
   │   │   返回: { diaries: [{id, date, ...}] }
   │   └─ for each diary:
-  │       GET /api/chongyu/diaries/:diaryId
+  │       GET /api/mengyu/diaries/:diaryId
   │       返回: imageList（动态合并 pet_photos + diary.imageList）
   │
   └─ 服务端失败 → fallback：
@@ -262,7 +262,7 @@ loadData()
   条件: isPremium && canGenerateAI()
   遍历: 今天 / 昨天 / 前天
   ├─ 该日期无日记内容 → 触发生成
-  │   POST /api/chongyu/ai/diary/auto-generate
+  │   POST /api/mengyu/ai/diary/auto-generate
   │   body: {petId, date}
   │   返回: {generated, diaryId, date, contentLength}
   └─ 成功 → QuotaService.recordAIUsage() → 刷新配额 → UI 更新
@@ -392,16 +392,16 @@ _lastScanResults: List<ScanResult>
 
 | 端点 | 方法 | 调用方 | 用途 |
 |-----|------|--------|------|
-| `/api/chongyu/pet/list` | GET | ProfileViewModel | 拉取宠物列表 |
-| `/api/chongyu/diaries?petId=&limit=&offset=` | GET | DiaryViewModel | 日记列表 |
-| `/api/chongyu/diaries/:diaryId` | GET | DiaryViewModel | 日记详情（含动态 imageList） |
-| `/api/chongyu/pets/profile` | POST | ProfileSetupVM / ProfileVM | 创建 / 同步宠物档案 |
-| `/api/chongyu/emotions/save` | POST | CalendarViewModel | 保存情绪记录 |
-| `/api/chongyu/emotions/month?year=&month=&petId=` | GET | CalendarViewModel | 月度情绪数据（含贴纸 URL） |
-| `/api/chongyu/image/list/upload` | POST (multipart) | ScanUploadService | 批量上传照片（含去重） |
-| `/api/chongyu/ai/sticker/generate` | POST (multipart) | StickerGenerationService | AI 情绪识别 + 贴纸生成 |
-| `/api/chongyu/ai/diary/generate` | POST (multipart) | DiaryGenerationService | AI 日记生成（含图片） |
-| `/api/chongyu/ai/diary/auto-generate` | POST | DiaryViewModel | 自动生成最近日记 |
+| `/api/mengyu/pet/list` | GET | ProfileViewModel | 拉取宠物列表 |
+| `/api/mengyu/diaries?petId=&limit=&offset=` | GET | DiaryViewModel | 日记列表 |
+| `/api/mengyu/diaries/:diaryId` | GET | DiaryViewModel | 日记详情（含动态 imageList） |
+| `/api/mengyu/pets/profile` | POST | ProfileSetupVM / ProfileVM | 创建 / 同步宠物档案 |
+| `/api/mengyu/emotions/save` | POST | CalendarViewModel | 保存情绪记录 |
+| `/api/mengyu/emotions/month?year=&month=&petId=` | GET | CalendarViewModel | 月度情绪数据（含贴纸 URL） |
+| `/api/mengyu/image/list/upload` | POST (multipart) | ScanUploadService | 批量上传照片（含去重） |
+| `/api/mengyu/ai/sticker/generate` | POST (multipart) | StickerGenerationService | AI 情绪识别 + 贴纸生成 |
+| `/api/mengyu/ai/diary/generate` | POST (multipart) | DiaryGenerationService | AI 日记生成（含图片） |
+| `/api/mengyu/ai/diary/auto-generate` | POST | DiaryViewModel | 自动生成最近日记 |
 
 ---
 

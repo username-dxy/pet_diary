@@ -52,7 +52,7 @@ class _ApiTestPageState extends State<ApiTestPage> {
       buffer.writeln('\n📊 测试2: 获取统计信息');
       final statsResponse = await http
           .get(
-            Uri.parse('$baseUrl/api/chongyu/stats'),
+            Uri.parse('$baseUrl/api/mengyu/stats'),
             headers: const {'token': _testToken},
           )
           .timeout(const Duration(seconds: 5));
@@ -118,7 +118,7 @@ class _ApiTestPageState extends State<ApiTestPage> {
     try {
       final response = await http
           .post(
-            Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+            Uri.parse('$baseUrl/api/mengyu/pets/profile'),
             headers: {
               'Content-Type': 'application/json',
               'token': _testToken,
@@ -173,7 +173,7 @@ class _ApiTestPageState extends State<ApiTestPage> {
     try {
       final response = await http
           .get(
-            Uri.parse('$baseUrl/api/chongyu/stats'),
+            Uri.parse('$baseUrl/api/mengyu/stats'),
             headers: const {'token': _testToken},
           )
           .timeout(const Duration(seconds: 5));

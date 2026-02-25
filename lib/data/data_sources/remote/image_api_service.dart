@@ -78,7 +78,7 @@ class ImageApiService {
     }
 
     return _client.uploadFiles<ImageUploadResponse>(
-      '/api/chongyu/image/list/upload',
+      '/api/mengyu/image/list/upload',
       files: {'image': filePaths},
       fields: fields,
       fromJson: (json) {

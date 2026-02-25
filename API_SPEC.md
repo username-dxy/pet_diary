@@ -7,12 +7,19 @@
 
 ## 变更与对齐说明（2026-02-25）
 
-- 新增接口：`GET /api/chongyu/emotions/month`
-- 已移除接口：`GET /api/chongyu/diary/list`、`GET /api/chongyu/diary/calendar`、`GET /api/chongyu/diary/7days`
+- 新增接口：`GET /api/mengyu/emotions/month`
+- 新增（规划中，未实现）登录接口：
+  - `POST /api/mengyu/auth/send-code`
+  - `POST /api/mengyu/auth/login`（手机号验证码）
+  - `POST /api/mengyu/auth/wechat/login`（微信授权）
+  - `POST /api/mengyu/auth/apple/login`（Apple 授权）
+  - `POST /api/mengyu/auth/refresh`
+  - `POST /api/mengyu/auth/logout`
+- 已移除接口：`GET /api/mengyu/diary/list`、`GET /api/mengyu/diary/calendar`、`GET /api/mengyu/diary/7days`
 - 文档与实现存在差异（实现有、文档原先未写）：
-  - `GET /api/chongyu/photos/:photoId`
-  - `GET /api/chongyu/diaries`
-  - `GET /api/chongyu/diaries/:diaryId`
+  - `GET /api/mengyu/photos/:photoId`
+  - `GET /api/mengyu/diaries`
+  - `GET /api/mengyu/diaries/:diaryId`
 - 贴纸静态资源目录已更新为 `uploads/stickers`（原文档写成 `uploads/photos`）
 
 ---
@@ -29,11 +36,19 @@
 
 ### 认证
 
-所有 `/api/chongyu/` 路由均需在 Header 携带 `token`，缺失返回 401。
+`/api/mengyu/` 业务路由统一使用用户访问令牌（JWT 或等价 token）：
 
 ```
-token: <petId（设备ID）>
+Authorization: Bearer <accessToken>
+X-Device-Id: <deviceUuid>   # 建议携带，用于风控和设备绑定（非用户身份）
 ```
+
+例外（规划中，未实现）：登录相关接口 `POST /api/mengyu/auth/*` 无需 `Authorization`。
+
+兼容策略（过渡期）：
+- Mock 现实现仍使用 `token: <petId/设备ID>`；上线前应切换到 `Authorization`。
+- `deviceId` 仅用于设备识别，不再等同于 `userId` 或 `petId`。
+- 文档中若仍出现历史 Header 字段 `token`，视为过渡写法，等价 `Authorization: Bearer <accessToken>`。
 
 ### 统一响应结构
 
@@ -60,8 +75,9 @@ token: <petId（设备ID）>
 
 | HTTP 状态码 | code | 含义 |
 |-----------|------|------|
-| 401 | 401 | 未携带 `token` header |
+| 401 | 401 | 未携带或令牌无效（`Authorization`） |
 | 400 | 400 | 请求参数缺失或格式错误 |
+| 429 | 429 | 请求频率超限 |
 | 404 | 404 | 资源不存在 |
 | 500 | 500 | 服务端内部错误 |
 
@@ -117,8 +133,8 @@ token: <petId（设备ID）>
 
 规律：
 - 宠物档案接口统一使用 `type/gender` int；服务端兼容 `species/gender` string 入参并在接口层转换。
-- 情绪记录接口（`/api/chongyu/emotions/*`）统一使用 int emotion；服务端兼容 string 入参并转换为 int。
-- 日记接口（`/api/chongyu/diaries*`）维持 int emotion。
+- 情绪记录接口（`/api/mengyu/emotions/*`）统一使用 int emotion；服务端兼容 string 入参并转换为 int。
+- 日记接口（`/api/mengyu/diaries*`）维持 int emotion。
 
 > 兼容策略：为避免历史客户端中断，服务端仍接受旧 string 值，但响应与存储按 int 规范输出。
 
@@ -146,7 +162,7 @@ token: <petId（设备ID）>
 
 | API 字段 | 客户端字段 | 说明 |
 |---------|----------|------|
-| `petId` | `id` | 设备 ID |
+| `petId` | `id` | 宠物唯一 ID（UUID），不等于设备 ID |
 | `type` | `species` | 枚举映射见上方 |
 | `gender` | `gender` | 枚举映射见上方 |
 | `birthday` | `birthday` | ISO 日期字符串 |
@@ -202,7 +218,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.1 GET `/api/chongyu/pet/list` — 宠物列表
+### 4.1 GET `/api/mengyu/pet/list` — 宠物列表
 
 **用途**：查询当前 token 下所有宠物档案。
 
@@ -210,7 +226,7 @@ token: <petId（设备ID）>
 
 | 位置 | 字段 | 类型 | 必填 | 说明 |
 |-----|------|------|------|------|
-| Header | `token` | String | ✅ | 设备 ID |
+| Header | `Authorization` | String | ✅ | `Bearer <accessToken>` |
 
 **Response**（200）
 
@@ -225,7 +241,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.2 GET `/api/chongyu/pet/detail` — 宠物详情 / 日记详情（复用路由）
+### 4.2 GET `/api/mengyu/pet/detail` — 宠物详情 / 日记详情（复用路由）
 
 **用途**：
 - 仅传 `petId` → 返回宠物档案详情
@@ -281,7 +297,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.3 POST `/api/chongyu/pets/profile` — 同步宠物档案
+### 4.3 POST `/api/mengyu/pets/profile` — 同步宠物档案
 
 **用途**：创建或更新宠物档案（以 `id` 字段做 upsert）。
 
@@ -290,7 +306,7 @@ token: <petId（设备ID）>
 | 位置 | 字段 | 类型 | 必填 | 说明 |
 |-----|------|------|------|------|
 | Header | `token` | String | ✅ | |
-| Body (JSON) | `id` | String | ✅ | 设备 ID，同 petId |
+| Body (JSON) | `id` | String | ✅ | 宠物唯一 ID（UUID），同 petId |
 | Body | `name` | String | ✅ | 宠物名 |
 | Body | `type` | Int | ✅ | `1`=dog, `2`=cat |
 | Body | `breed` | String | — | 品种 |
@@ -309,7 +325,7 @@ token: <petId（设备ID）>
 {
   "success": true,
   "data": {
-    "petId": "device-uuid",
+    "petId": "pet-uuid",
     "syncedAt": "2026-01-15T10:00:00.000Z"
   },
   "message": "同步成功"
@@ -318,7 +334,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.4 GET `/api/chongyu/pets/:petId/profile` — 获取宠物档案（原始格式）
+### 4.4 GET `/api/mengyu/pets/:petId/profile` — 获取宠物档案（原始格式）
 
 **用途**：按 petId 获取原始宠物档案（非 API 映射格式，客户端用于启动时校验档案是否存在）。
 
@@ -342,7 +358,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.5 POST `/api/chongyu/image/list/upload` — 批量上传相册图片
+### 4.5 POST `/api/mengyu/image/list/upload` — 批量上传相册图片
 
 **用途**：客户端扫描宠物照片后批量上传，服务端负责去重、关联 diary。
 
@@ -390,7 +406,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.6 GET `/api/chongyu/diaries` — 日记列表
+### 4.6 GET `/api/mengyu/diaries` — 日记列表
 
 **用途**：获取某宠物日记列表，支持分页。
 
@@ -431,7 +447,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.7 GET `/api/chongyu/diaries/:diaryId` — 日记详情
+### 4.7 GET `/api/mengyu/diaries/:diaryId` — 日记详情
 
 **用途**：根据 `diaryId` 获取日记详情（含动态合并 `imageList`）。
 
@@ -466,13 +482,13 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.8 `GET /api/chongyu/diary/list` / `GET /api/chongyu/diary/calendar` / `GET /api/chongyu/diary/7days` — 已移除
+### 4.8 `GET /api/mengyu/diary/list` / `GET /api/mengyu/diary/calendar` / `GET /api/mengyu/diary/7days` — 已移除
 
-已由 `/api/chongyu/diaries` 与 `/api/chongyu/diaries/:diaryId` 覆盖，不再提供。
+已由 `/api/mengyu/diaries` 与 `/api/mengyu/diaries/:diaryId` 覆盖，不再提供。
 
 ---
 
-### 4.9 GET `/api/chongyu/pet/photos` — 查询宠物照片
+### 4.9 GET `/api/mengyu/pet/photos` — 查询宠物照片
 
 **用途**：查询已上传的宠物照片，可按日期过滤。
 
@@ -509,7 +525,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.10 POST `/api/chongyu/upload/profile-photo` — 上传头像
+### 4.10 POST `/api/mengyu/upload/profile-photo` — 上传头像
 
 **用途**：上传宠物头像图片，返回可访问 URL。
 
@@ -536,7 +552,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.11 POST `/api/chongyu/upload/photo` — 上传普通照片
+### 4.11 POST `/api/mengyu/upload/photo` — 上传普通照片
 
 **Request**
 
@@ -562,7 +578,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.12 POST `/api/chongyu/diaries` — 创建 / 更新日记
+### 4.12 POST `/api/mengyu/diaries` — 创建 / 更新日记
 
 **用途**：upsert 一条日记（以 `id` 字段做唯一键）。
 
@@ -591,7 +607,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.13 POST `/api/chongyu/emotions/save` — 保存情绪记录
+### 4.13 POST `/api/mengyu/emotions/save` — 保存情绪记录
 
 **用途**：upsert 一条情绪记录（以 `id` 字段做唯一键）。
 
@@ -628,7 +644,7 @@ token: <petId（设备ID）>
 
 ---
 
-### 4.14 POST `/api/chongyu/ai/sticker/generate` — AI 贴纸生成
+### 4.14 POST `/api/mengyu/ai/sticker/generate` — AI 贴纸生成
 
 **用途**：上传一张宠物照片，返回情绪分析结果 + 生成的卡通贴纸图片 URL。
 
@@ -728,7 +744,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ---
 
-### 4.15 POST `/api/chongyu/ai/diary/generate` — AI 日记生成（含图片上传）
+### 4.15 POST `/api/mengyu/ai/diary/generate` — AI 日记生成（含图片上传）
 
 **用途**：上传多张照片 + 宠物信息，服务端调用 AI 生成日记文字，日记内容不自动写库。
 
@@ -745,7 +761,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 **`pet` 字段示例**：
 ```json
 {
-  "id": "device-uuid",
+  "id": "pet-uuid",
   "name": "小白",
   "species": "cat",
   "breed": "英短",
@@ -794,7 +810,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ---
 
-### 4.16 POST `/api/chongyu/ai/diary/auto-generate` — 自动生成日记（使用服务端已有照片）
+### 4.16 POST `/api/mengyu/ai/diary/auto-generate` — 自动生成日记（使用服务端已有照片）
 
 **用途**：基于服务端 `pet_photos` 表中已上传的照片，自动为某天生成日记并写库。与 4.15 不同：**不需要客户端上传图片，直接用服务端存储**。
 
@@ -875,7 +891,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ---
 
-### 4.17 GET `/api/chongyu/stats` — 服务器统计信息
+### 4.17 GET `/api/mengyu/stats` — 服务器统计信息
 
 **用途**：监控用，查看各集合数量和服务状态。
 
@@ -899,7 +915,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ---
 
-### 4.18 GET `/api/chongyu/emotions/month` — 按月查询情绪记录
+### 4.18 GET `/api/mengyu/emotions/month` — 按月查询情绪记录
 
 **用途**：按月份拉取 `emotion_records`，用于日历启动/切月时与本地缓存对齐（含历史 `stickerUrl`）。
 
@@ -914,7 +930,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 **示例**
 
-`GET /api/chongyu/emotions/month?year=2026&month=2&petId=xxx`
+`GET /api/mengyu/emotions/month?year=2026&month=2&petId=xxx`
 
 **Response**（200）
 
@@ -954,6 +970,206 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ---
 
+### 4.19 POST `/api/mengyu/auth/send-code` — 发送登录验证码（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：向手机号发送短信验证码，用于登录。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 | 说明 |
+|-----|------|------|------|------|
+| Body (JSON) | `phone` | String | ✅ | 手机号，建议 E.164 格式（如 `+8613800000000`） |
+| Body | `scene` | String | — | 业务场景，默认 `login` |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "requestId": "string",
+    "expireIn": 300
+  }
+}
+```
+
+---
+
+### 4.20 POST `/api/mengyu/auth/login` — 验证码登录（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：使用手机号 + 验证码登录，换取访问令牌。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 | 说明 |
+|-----|------|------|------|------|
+| Body (JSON) | `phone` | String | ✅ | 手机号 |
+| Body | `code` | String | ✅ | 短信验证码 |
+| Body | `deviceId` | String | — | 设备唯一标识 |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "string",
+    "accessToken": "string",
+    "refreshToken": "string",
+    "tokenType": "Bearer",
+    "expiresIn": 7200,
+    "isNewUser": false
+  }
+}
+```
+
+**Error**（规划）
+
+| 场景 | HTTP | code | message |
+|-----|------|------|---------|
+| 验证码错误或过期 | 400 | 4001 | 验证码无效 |
+| 登录频率过高 | 429 | 4290 | 请求过于频繁 |
+
+---
+
+### 4.21 POST `/api/mengyu/auth/wechat/login` — 微信授权登录（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：使用微信 OAuth 授权结果登录（或注册）并换取平台访问令牌。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 | 说明 |
+|-----|------|------|------|------|
+| Body (JSON) | `code` | String | ✅ | 微信 `snsapi_userinfo` 或小程序登录 code |
+| Body | `state` | String | — | 防 CSRF 状态串 |
+| Body | `deviceId` | String | — | 设备唯一标识 |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "string",
+    "accessToken": "string",
+    "refreshToken": "string",
+    "tokenType": "Bearer",
+    "expiresIn": 7200,
+    "isNewUser": false,
+    "bindType": "wechat"
+  }
+}
+```
+
+**Error**（规划）
+
+| 场景 | HTTP | code | message |
+|-----|------|------|---------|
+| 微信 code 无效 | 400 | 4002 | 微信授权失败 |
+| 微信接口异常 | 502 | 5021 | 上游授权服务异常 |
+
+---
+
+### 4.22 POST `/api/mengyu/auth/apple/login` — Apple 授权登录（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：使用 Sign in with Apple 授权结果登录（或注册）并换取平台访问令牌。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 | 说明 |
+|-----|------|------|------|------|
+| Body (JSON) | `identityToken` | String | ✅ | Apple 返回的 JWT |
+| Body | `authorizationCode` | String | — | Apple 返回的授权码 |
+| Body | `user` | Object | — | 首次授权时可能返回姓名/邮箱 |
+| Body | `deviceId` | String | — | 设备唯一标识 |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "string",
+    "accessToken": "string",
+    "refreshToken": "string",
+    "tokenType": "Bearer",
+    "expiresIn": 7200,
+    "isNewUser": false,
+    "bindType": "apple"
+  }
+}
+```
+
+**Error**（规划）
+
+| 场景 | HTTP | code | message |
+|-----|------|------|---------|
+| identityToken 校验失败 | 400 | 4003 | Apple 授权无效 |
+| Apple 公钥拉取失败 | 502 | 5022 | 上游授权服务异常 |
+
+---
+
+### 4.23 POST `/api/mengyu/auth/refresh` — 刷新访问令牌（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：使用 `refreshToken` 刷新 `accessToken`。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 |
+|-----|------|------|------|
+| Body (JSON) | `refreshToken` | String | ✅ |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "accessToken": "string",
+    "refreshToken": "string",
+    "tokenType": "Bearer",
+    "expiresIn": 7200
+  }
+}
+```
+
+---
+
+### 4.24 POST `/api/mengyu/auth/logout` — 退出登录（未实现）
+
+**状态**：❌ 未实现（当前 `mock-server/server.js` 无此路由）
+
+**用途**：使当前登录态失效（服务端注销 refreshToken）。
+
+**Request**
+
+| 位置 | 字段 | 类型 | 必填 |
+|-----|------|------|------|
+| Header | `Authorization` | String | ✅ | `Bearer <accessToken>` |
+
+**Response**（200，规划）
+
+```json
+{
+  "success": true,
+  "data": {
+    "loggedOut": true
+  }
+}
+```
+
+---
+
 ## 五、业务规则汇总
 
 ### 图片去重规则
@@ -978,7 +1194,7 @@ Step 3: 生成贴纸图（Gemini 或 Seedream）
 
 ### 日记 imageList 动态合并
 
-`/api/chongyu/diaries/:diaryId` 每次返回时实时合并：
+`/api/mengyu/diaries/:diaryId` 每次返回时实时合并：
 
 ```
 最终 imageList = diary.imageList（存储值）∪ pet_photos（petId+date 过滤结果）

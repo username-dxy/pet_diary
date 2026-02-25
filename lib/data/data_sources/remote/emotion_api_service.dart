@@ -31,7 +31,7 @@ class EmotionApiService {
     Map<String, dynamic> recordJson,
   ) {
     return _client.post<EmotionSaveResponse>(
-      '/api/chongyu/emotions/save',
+      '/api/mengyu/emotions/save',
       body: recordJson,
       fromJson: (json) =>
           EmotionSaveResponse.fromJson(json as Map<String, dynamic>),
@@ -53,7 +53,7 @@ class EmotionApiService {
     }
 
     return _client.get<List<EmotionRecord>>(
-      '/api/chongyu/emotions/month',
+      '/api/mengyu/emotions/month',
       queryParams: query,
       fromJson: (json) {
         final map = json as Map<String, dynamic>;

@@ -38,7 +38,7 @@ npm run dev
 #### 同步宠物档案
 
 ```http
-POST /api/chongyu/pets/profile
+POST /api/mengyu/pets/profile
 Content-Type: application/json
 
 {
@@ -70,7 +70,7 @@ Content-Type: application/json
 #### 获取宠物档案
 
 ```http
-GET /api/chongyu/pets/{petId}/profile
+GET /api/mengyu/pets/{petId}/profile
 ```
 
 ---
@@ -80,7 +80,7 @@ GET /api/chongyu/pets/{petId}/profile
 #### 上传头像照片
 
 ```http
-POST /api/chongyu/upload/profile-photo
+POST /api/mengyu/upload/profile-photo
 Content-Type: multipart/form-data
 
 photo: <file>
@@ -102,7 +102,7 @@ photo: <file>
 #### 上传普通照片
 
 ```http
-POST /api/chongyu/upload/photo
+POST /api/mengyu/upload/photo
 Content-Type: multipart/form-data
 
 photo: <file>
@@ -115,7 +115,7 @@ photo: <file>
 #### 创建日记
 
 ```http
-POST /api/chongyu/diaries
+POST /api/mengyu/diaries
 Content-Type: application/json
 
 {
@@ -133,13 +133,13 @@ Content-Type: application/json
 #### 获取日记列表
 
 ```http
-GET /api/chongyu/diaries?petId=pet_123&limit=30&offset=0
+GET /api/mengyu/diaries?petId=pet_123&limit=30&offset=0
 ```
 
 #### 获取日记详情
 
 ```http
-GET /api/chongyu/diaries/{diaryId}
+GET /api/mengyu/diaries/{diaryId}
 ```
 
 ---
@@ -147,7 +147,7 @@ GET /api/chongyu/diaries/{diaryId}
 ### 统计信息
 
 ```http
-GET /api/chongyu/stats
+GET /api/mengyu/stats
 ```
 
 **响应**:
@@ -199,7 +199,7 @@ class ApiProfileService implements ProfileService {
   Future<ProfileSyncResult> syncProfile(Pet pet) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+        Uri.parse('$baseUrl/api/mengyu/pets/profile'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(pet.toJson()),
       );
@@ -224,7 +224,7 @@ class ApiProfileService implements ProfileService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/chongyu/upload/profile-photo'),
+        Uri.parse('$baseUrl/api/mengyu/upload/profile-photo'),
       );
 
       request.files.add(
@@ -249,7 +249,7 @@ class ApiProfileService implements ProfileService {
   Future<Pet?> fetchProfile(String petId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/chongyu/pets/$petId/profile'),
+        Uri.parse('$baseUrl/api/mengyu/pets/$petId/profile'),
       );
 
       if (response.statusCode == 200) {
@@ -347,7 +347,7 @@ rm -rf mock-server/uploads
 cat mock-server/db.json | python -m json.tool
 ```
 
-或访问: http://localhost:3000/api/chongyu/stats
+或访问: http://localhost:3000/api/mengyu/stats
 
 ---
 

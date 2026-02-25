@@ -29,7 +29,7 @@ class StickerGenerationService {
     required File photo,
   }) {
     return _client.uploadFiles<AiStickerResult>(
-      '/api/chongyu/ai/sticker/generate',
+      '/api/mengyu/ai/sticker/generate',
       files: {'image': [photo.path]},
       fromJson: (json) {
         if (json is Map<String, dynamic>) {
@@ -92,7 +92,7 @@ class AiStickerResult {
     final sticker = json['sticker'] as Map<String, dynamic>? ?? const {};
 
     return AiStickerResult(
-      emotion: _parseEmotion(analysis['emotion'] as String?),
+      emotion: _parseEmotion(analysis['emotion']),
       confidence: (analysis['confidence'] as num?)?.toDouble() ?? 0.0,
       features: PetFeatures(
         species: (petFeatures['species'] as String?) ?? 'other',
@@ -107,8 +107,20 @@ class AiStickerResult {
     );
   }
 
-  static Emotion _parseEmotion(String? value) {
-    switch ((value ?? '').toLowerCase()) {
+  static Emotion _parseEmotion(dynamic value) {
+    // 服务端返回整数（happy=1, calm=2, sad=3, angry=4, sleepy=5, curious=6）
+    if (value is int) {
+      const intMap = {
+        1: Emotion.happy,
+        2: Emotion.calm,
+        3: Emotion.sad,
+        4: Emotion.angry,
+        5: Emotion.sleepy,
+        6: Emotion.curious,
+      };
+      return intMap[value] ?? Emotion.calm;
+    }
+    switch ((value as String? ?? '').toLowerCase()) {
       case 'happy':
         return Emotion.happy;
       case 'calm':

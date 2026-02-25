@@ -101,7 +101,7 @@ class ApiProfileService implements ProfileService {
   @override
   Future<ProfileSyncResult> syncProfile(Pet pet) async {
     debugPrint('[API] 同步宠物档案到服务器...');
-    debugPrint('[API] URL: $baseUrl/api/chongyu/pets/profile');
+    debugPrint('[API] URL: $baseUrl/api/mengyu/pets/profile');
     debugPrint('[API] Pet: ${pet.name}');
 
     try {
@@ -109,7 +109,7 @@ class ApiProfileService implements ProfileService {
       headers['Content-Type'] = 'application/json';
       final response = await http
           .post(
-            Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+            Uri.parse('$baseUrl/api/mengyu/pets/profile'),
             headers: headers,
             body: jsonEncode(_toProfilePayload(pet)),
           )
@@ -185,7 +185,7 @@ class ApiProfileService implements ProfileService {
   Future<String> uploadProfilePhoto(File photo) async {
     debugPrint('[API] 上传头像照片...');
     debugPrint('[API] 文件路径: ${photo.path}');
-    debugPrint('[API] URL: $baseUrl/api/chongyu/upload/profile-photo');
+    debugPrint('[API] URL: $baseUrl/api/mengyu/upload/profile-photo');
 
     try {
       // 检查文件是否存在
@@ -198,7 +198,7 @@ class ApiProfileService implements ProfileService {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/chongyu/upload/profile-photo'),
+        Uri.parse('$baseUrl/api/mengyu/upload/profile-photo'),
       );
 
       final headers = await _authHeaders();
@@ -241,13 +241,13 @@ class ApiProfileService implements ProfileService {
   Future<Pet?> fetchProfile(String petId) async {
     debugPrint('[API] 获取宠物档案...');
     debugPrint('[API] Pet ID: $petId');
-    debugPrint('[API] URL: $baseUrl/api/chongyu/pets/$petId/profile');
+    debugPrint('[API] URL: $baseUrl/api/mengyu/pets/$petId/profile');
 
     try {
       final headers = await _authHeaders();
       final response = await http
           .get(
-            Uri.parse('$baseUrl/api/chongyu/pets/$petId/profile'),
+            Uri.parse('$baseUrl/api/mengyu/pets/$petId/profile'),
             headers: headers,
           )
           .timeout(Duration(seconds: ApiConfig.timeoutSeconds));

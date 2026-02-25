@@ -45,7 +45,7 @@ Future<void> testApiConnection() async {
     debugPrint('📊 测试2: 获取统计信息...');
     final statsResponse = await http
         .get(
-          Uri.parse('$baseUrl/api/chongyu/stats'),
+          Uri.parse('$baseUrl/api/mengyu/stats'),
           headers: const {'token': 'test-token'},
         )
         .timeout(const Duration(seconds: 5));
@@ -64,7 +64,7 @@ Future<void> testApiConnection() async {
     debugPrint('📝 测试3: 测试POST请求...');
     final postResponse = await http
         .post(
-          Uri.parse('$baseUrl/api/chongyu/pets/profile'),
+          Uri.parse('$baseUrl/api/mengyu/pets/profile'),
           headers: {
             'Content-Type': 'application/json',
             'token': 'test-token',

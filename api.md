@@ -4,7 +4,7 @@
 
 | 环境 | 域名                    |
 | :--- | :---------------------- |
-| dev  | dev.chongyu.meiracle.cn |
+| dev  | dev.mengyu.meiracle.cn |
 
 ## 2、通用响应对象
 
@@ -28,7 +28,7 @@
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/pet/list
+**路径：**/api/mengyu/pet/list
 
 **请求：**
 
@@ -62,7 +62,7 @@ Header
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/pet/detail
+**路径：**/api/mengyu/pet/detail
 
 **请求：**
 
@@ -102,7 +102,7 @@ Query：
 
 **请求方式：POST**
 
-**路径：**/api/chongyu/image/list/upload
+**路径：**/api/mengyu/image/list/upload
 
 **请求：**
 
@@ -137,7 +137,7 @@ Body：
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/diary/list
+**路径：**/api/mengyu/diary/list
 
 **请求：**
 
@@ -173,7 +173,7 @@ Query：
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/pet/detail
+**路径：**/api/mengyu/pet/detail
 
 **请求：**
 
@@ -211,7 +211,7 @@ Query：
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/diary/calendar
+**路径：**/api/mengyu/diary/calendar
 
 **请求：**
 
@@ -249,7 +249,7 @@ Query：
 
 **请求方式：**GET
 
-**路径：**/api/chongyu/diary/7days
+**路径：**/api/mengyu/diary/7days
 
 **请求：**
 

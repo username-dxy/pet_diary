@@ -101,7 +101,7 @@ Calendar and Diary screens are navigated to programmatically from the home room 
 - **`lib/config/api_config.dart`** — environment switching (dev/staging/prod), base URL, token management (get/set/clear via SharedPreferences with memory cache)
 - **`lib/core/network/api_client.dart`** — HTTP wrapper with `get<T>()`, `post<T>()`, `uploadFiles<T>()`; auto-attaches `token` header; timeout/error handling
 - **`lib/core/network/api_response.dart`** — `ApiResponse<T>` matching server format `{ success, data, error: { message, code } }`
-- **`lib/data/data_sources/remote/`** — `PetApiService`, `DiaryApiService`, `ImageApiService` calling `/api/chongyu/` endpoints; `ImageUploadItem` includes `assetId`/`petId`/`date` for server-side dedup
+- **`lib/data/data_sources/remote/`** — `PetApiService`, `DiaryApiService`, `ImageApiService` calling `/api/mengyu/` endpoints; `ImageUploadItem` includes `assetId`/`petId`/`date` for server-side dedup
 
 ### iOS Native Bridge
 
@@ -138,7 +138,7 @@ ScanUploadService.aggregateByDay() → Map<date, List<ScanResult>>
     ▼
 PhotoCompressionService.compressPhoto() → 1080p/JPEG 80%
     ▼
-ImageApiService.uploadImages() → POST /api/chongyu/image/list/upload
+ImageApiService.uploadImages() → POST /api/mengyu/image/list/upload
     │ fields: assetId_N, petId_N, date_N (server dedup by assetId+petId)
     ▼
 Server: pet_photos collection, auto-update diary imageList
@@ -174,7 +174,7 @@ DiaryGenerationService.generateSmart()
     │ checks QuotaService.canGenerateAI()
     ├── quota exhausted → returns error, UI shows upgrade prompt
     │
-    ├── POST /api/chongyu/ai/diary/generate
+    ├── POST /api/mengyu/ai/diary/generate
     │   fields: pet (JSON), date, otherPets (JSON)
     │   files: images[]
     │   ▼
@@ -209,7 +209,7 @@ Key services:
 
 Express.js server in `mock-server/` with two API versions:
 - **`/api/v1/`** — legacy routes (no auth required)
-- **`/api/chongyu/`** — current routes matching api.md spec (requires `token` header)
+- **`/api/mengyu/`** — current routes matching api.md spec (requires `token` header)
 
 Server reads/writes `mock-server/db.json` for persistence. File uploads go to `mock-server/uploads/`.
 
@@ -218,13 +218,13 @@ Database collections: `pets`, `photos`, `pet_photos`, `diaries`, `users`.
 **`pet_photos` collection** — stores uploaded pet photos with dedup by `assetId + petId`. Upload endpoint auto-creates/updates diary `imageList` and creates placeholder diaries for new dates. Diary detail endpoint dynamically merges `pet_photos` into `imageList`.
 
 Key endpoints:
-- `POST /api/chongyu/image/list/upload` — batch upload with `petId_N`, `date_N`, `assetId_N` fields; returns `{ uploaded, duplicates }`
-- `GET /api/chongyu/pet/photos?petId=&date=` — query pet photos by petId and optional date
-- `GET /api/chongyu/pet/detail?petId=&diaryId=` — diary detail with dynamically built `imageList`
-- `POST /api/chongyu/ai/sticker/generate` — AI emotion analysis + sticker generation (requires GEMINI_API_KEY in `.env`)
-- `POST /api/chongyu/ai/diary/generate` — AI diary generation from photos (requires GEMINI_API_KEY in `.env`)
+- `POST /api/mengyu/image/list/upload` — batch upload with `petId_N`, `date_N`, `assetId_N` fields; returns `{ uploaded, duplicates }`
+- `GET /api/mengyu/pet/photos?petId=&date=` — query pet photos by petId and optional date
+- `GET /api/mengyu/pet/detail?petId=&diaryId=` — diary detail with dynamically built `imageList`
+- `POST /api/mengyu/ai/sticker/generate` — AI emotion analysis + sticker generation (requires GEMINI_API_KEY in `.env`)
+- `POST /api/mengyu/ai/diary/generate` — AI diary generation from photos (requires GEMINI_API_KEY in `.env`)
 
-Test with: `curl -H "token: test123" http://localhost:3000/api/chongyu/pet/list`
+Test with: `curl -H "token: test123" http://localhost:3000/api/mengyu/pet/list`
 
 ### Mock Server Testing
 
@@ -282,7 +282,7 @@ cat mock-server/db.json | jq '.pet_photos'
 # Test upload
 curl -H "token: test123" -F "image=@test.jpg" \
   -F "petId_0=pet1" -F "date_0=2026-02-04" \
-  http://localhost:3000/api/chongyu/image/list/upload
+  http://localhost:3000/api/mengyu/image/list/upload
 ```
 
 ## Common Pitfalls
