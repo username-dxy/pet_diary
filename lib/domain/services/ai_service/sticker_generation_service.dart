@@ -45,12 +45,12 @@ class StickerGenerationService {
     final emotionDetail = _getEmotionDetail(emotion);
 
     return '''
-A cute cartoon sticker of a ${features.breed} ${features.species},
-showing ${emotion.name} emotion through $emotionDetail,
-with ${features.color} fur, in a ${features.pose} posture.
-Style: kawaii, simple lines, bright colors, white background.
-Focus on the head and upper body.
-''';
+      A cute cartoon sticker of a ${features.breed} ${features.species},
+      showing ${emotion.name} emotion through $emotionDetail,
+      with ${features.color} fur, in a ${features.pose} posture.
+      Style: kawaii, simple lines, bright colors, white background.
+      Focus on the head and upper body.
+      ''';
   }
 
   String _getEmotionDetail(Emotion emotion) {
@@ -92,7 +92,7 @@ class AiStickerResult {
     final sticker = json['sticker'] as Map<String, dynamic>? ?? const {};
 
     return AiStickerResult(
-      emotion: _parseEmotion(analysis['emotion']),
+      emotion: _parseEmotion(analysis['emotion'] as String?),
       confidence: (analysis['confidence'] as num?)?.toDouble() ?? 0.0,
       features: PetFeatures(
         species: (petFeatures['species'] as String?) ?? 'other',
@@ -107,27 +107,8 @@ class AiStickerResult {
     );
   }
 
-  static Emotion _parseEmotion(dynamic value) {
-    if (value is num) {
-      switch (value.toInt()) {
-        case 1:
-          return Emotion.happy;
-        case 2:
-          return Emotion.calm;
-        case 3:
-          return Emotion.sad;
-        case 4:
-          return Emotion.angry;
-        case 5:
-          return Emotion.sleepy;
-        case 6:
-          return Emotion.curious;
-        default:
-          return Emotion.calm;
-      }
-    }
-
-    switch ((value ?? '').toString().toLowerCase()) {
+  static Emotion _parseEmotion(String? value) {
+    switch ((value ?? '').toLowerCase()) {
       case 'happy':
         return Emotion.happy;
       case 'calm':
